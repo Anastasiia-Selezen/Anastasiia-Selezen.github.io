@@ -8451,7 +8451,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
  .highlight pre  .il { color: #666666 } /* Literal.Number.Integer.Long */&lt;/style&gt;&lt;div class="cell border-box-sizing text_cell rendered"&gt;&lt;div class="prompt input_prompt"&gt;
 &lt;/div&gt;&lt;div class="inner_cell"&gt;
 &lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
-&lt;p&gt;&lt;b&gt;&lt;font size="5"&gt;Please, visit [this article on Kaggle](https://www.kaggle.com/code/anastasiiaselezen/explore-ml-ds-survey-2021-ukraine) for proper visualization. Give upvote if  you like it :)&lt;/font&gt;&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;&lt;font size="5"&gt;Please, visit [this article on Kaggle](https://www.kaggle.com/code/anastasiiaselezen/explore-ml-ds-survey-2021-ukraine) for proper visualization.&lt;/font&gt;&lt;/b&gt;
+&lt;br/&gt;&lt;b&gt;&lt;font size="5"&gt;Give upvote if  you like it :)&lt;/font&gt;&lt;/b&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
