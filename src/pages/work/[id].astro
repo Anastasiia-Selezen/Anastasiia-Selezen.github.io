@@ -1,0 +1,232 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("work");
+  return entries
+    .filter((entry) => entry.data.notebookHtml || entry.body)
+    .map((entry) => ({
+      params: { id: entry.id },
+      props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const formattedDate = entry.data.date.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.summary}
+  current={entry.data.status === "archive" ? "archive" : "home"}
+>
+  <main class="content-page">
+    <header class="article-header">
+      <span class="kicker">{entry.data.category}</span>
+      <h1 class="page-title">{entry.data.title}</h1>
+      <p class="lead">{entry.data.summary}</p>
+      <div class="byline">
+        <time datetime={entry.data.date.toISOString().slice(0, 10)}>
+          {formattedDate}
+        </time>
+        {entry.data.source && (
+          <>
+            <span class="dot" aria-hidden="true"></span>
+            <span>{entry.data.source}</span>
+          </>
+        )}
+        {entry.data.tags.length > 0 && (
+          <>
+            <span class="dot" aria-hidden="true"></span>
+            <span>{entry.data.tags.join(" · ")}</span>
+          </>
+        )}
+      </div>
+      {
+        entry.data.externalUrl && (
+          <div class="button-row">
+            <a class="button primary" href={entry.data.externalUrl} target="_blank" rel="noopener noreferrer">
+              Read on {entry.data.source ?? "source"}{" "}
+              <span class="arrow" aria-hidden="true">→</span>
+            </a>
+          </div>
+        )
+      }
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+    {
+      entry.data.notebookHtml && (
+        <iframe
+          class="notebook-frame"
+          data-notebook-frame
+          src={entry.data.notebookHtml}
+          title={`${entry.data.title} notebook`}
+          loading="lazy"
+        />
+      )
+    }
+  </main>
+  <script is:inline>
+    const notebookDarkStyles = `
+      :root { color-scheme: dark; }
+      html,
+      body,
+      #notebook {
+        background: #0d0c0e !important;
+        color: #ece4d3 !important;
+      }
+      body {
+        min-width: 0 !important;
+      }
+      #notebook-container {
+        background: #111014 !important;
+        color: #ece4d3 !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(236, 228, 211, 0.12) !important;
+        border-radius: 8px !important;
+        padding: 48px 52px !important;
+      }
+      .cell,
+      .inner_cell,
+      .text_cell,
+      .code_cell,
+      .rendered_html,
+      .text_cell_render,
+      .output_wrapper,
+      .output,
+      .output_area,
+      .output_subarea {
+        background: transparent !important;
+        color: #ece4d3 !important;
+      }
+      .rendered_html,
+      .rendered_html p,
+      .rendered_html li,
+      .output_text,
+      .output_text pre {
+        color: #ece4d3 !important;
+      }
+      .rendered_html h1,
+      .rendered_html h2,
+      .rendered_html h3,
+      .rendered_html h4,
+      .rendered_html strong,
+      .rendered_html b {
+        color: #f3ecdc !important;
+      }
+      .rendered_html h1,
+      .rendered_html h2 {
+        border-bottom-color: rgba(236, 228, 211, 0.12) !important;
+      }
+      .rendered_html a,
+      .anchor-link {
+        color: #ecbf7a !important;
+      }
+      .prompt,
+      .input_prompt,
+      .output_prompt {
+        color: #968b7a !important;
+      }
+      .input_area {
+        background: #0f1720 !important;
+        border: 1px solid rgba(236, 228, 211, 0.14) !important;
+        border-radius: 6px !important;
+      }
+      pre,
+      code,
+      .highlight,
+      .highlight pre {
+        background: transparent !important;
+        color: #d7cdb8 !important;
+      }
+      .output_subarea pre {
+        background: #0f1720 !important;
+        border: 1px solid rgba(236, 228, 211, 0.14) !important;
+        border-radius: 6px !important;
+        color: #d7cdb8 !important;
+        padding: 10px 12px !important;
+      }
+      .highlight .k,
+      .highlight .kn,
+      .highlight .ow {
+        color: #7dd3fc !important;
+      }
+      .highlight .s,
+      .highlight .s1,
+      .highlight .s2,
+      .highlight .mi,
+      .highlight .mf {
+        color: #f6c177 !important;
+      }
+      .highlight .nb,
+      .highlight .nf,
+      .highlight .nn {
+        color: #a7f3d0 !important;
+      }
+      .highlight .c,
+      .highlight .c1 {
+        color: #8f9aa6 !important;
+        font-style: italic !important;
+      }
+      .rendered_html table,
+      .rendered_html .dataframe {
+        background: #111014 !important;
+        color: #ece4d3 !important;
+        border-color: rgba(236, 228, 211, 0.16) !important;
+      }
+      .rendered_html th {
+        background: #1a1820 !important;
+        color: #f3ecdc !important;
+      }
+      .rendered_html td {
+        background: #111014 !important;
+        color: #d7cdb8 !important;
+      }
+      .rendered_html th,
+      .rendered_html td {
+        border-color: rgba(236, 228, 211, 0.12) !important;
+      }
+      img,
+      .output_png img {
+        background: #ffffff !important;
+        border-radius: 4px !important;
+      }
+      ::selection {
+        background: rgba(224, 168, 87, 0.32) !important;
+        color: #f3ecdc !important;
+      }
+      @media (max-width: 720px) {
+        #notebook-container {
+          padding: 28px 22px !important;
+        }
+      }
+    `;
+
+    const applyNotebookDarkTheme = (frame) => {
+      try {
+        const doc = frame.contentDocument;
+        if (!doc || doc.getElementById("portfolio-notebook-dark-theme")) return;
+        const style = doc.createElement("style");
+        style.id = "portfolio-notebook-dark-theme";
+        style.textContent = notebookDarkStyles;
+        doc.head.appendChild(style);
+      } catch {
+        frame.classList.add("notebook-frame--unthemed");
+      }
+    };
+
+    document.querySelectorAll("[data-notebook-frame]").forEach((frame) => {
+      frame.addEventListener("load", () => applyNotebookDarkTheme(frame));
+      applyNotebookDarkTheme(frame);
+    });
+  </script>
+</BaseLayout>

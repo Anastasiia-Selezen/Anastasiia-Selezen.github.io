@@ -1,0 +1,60 @@
+---
+import { getCollection } from "astro:content";
+import WorkCard from "../components/WorkCard.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const all = (await getCollection("work")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const current = all.filter((item) => item.data.status !== "archive");
+---
+
+<BaseLayout current="home">
+  <main>
+    <section class="intro">
+      <span class="kicker">Agentic AI engineer &middot; LLMs &middot; MCP &middot; RAG</span>
+      <h1>
+        I'm an Agentic AI engineer focused on designing and building
+        <em>end-to-end, production-grade AI systems</em>.
+      </h1>
+      <p>
+        My work sits at the intersection of LLMs, MCP-based tool layers, RAG,
+        and applied machine learning. I build systems across the full
+        lifecycle: from problem framing and architecture design to agentic
+        workflows, tool and data integration, evaluation, deployment, and
+        real-world reliability.
+      </p>
+      <p>
+        This site is where I share recent work, experiments, and technical
+        writing on building AI systems in practice.
+      </p>
+      <div class="button-row">
+        <a
+          class="button primary"
+          href="https://www.linkedin.com/in/anastasiia-selezen"
+          target="_blank"
+          rel="noopener noreferrer"
+          >LinkedIn <span class="arrow" aria-hidden="true">→</span></a
+        >
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Recent work</h2>
+        <span class="right">
+          {current.length} {current.length === 1 ? "work item" : "work items"}
+        </span>
+      </div>
+      <ol class="post-list">
+        {
+          current.map((item) => (
+            <li>
+              <WorkCard item={item} />
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+  </main>
+</BaseLayout>

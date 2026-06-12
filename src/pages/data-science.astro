@@ -1,0 +1,65 @@
+---
+import { getCollection } from "astro:content";
+import WorkCard from "../components/WorkCard.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const items = (await getCollection("work"))
+  .filter((item) => item.data.status === "archive")
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const byYear = new Map<number, typeof items>();
+for (const item of items) {
+  const year = item.data.date.getFullYear();
+  if (!byYear.has(year)) byYear.set(year, []);
+  byYear.get(year)!.push(item);
+}
+const years = Array.from(byYear.keys()).sort((a, b) => b - a);
+---
+
+<BaseLayout
+  title="Data Science"
+  description="Data science archive by Anastasiia Selezen, collecting EDA projects, Kaggle work, talks, and applied machine learning projects."
+  current="data-science"
+>
+  <main class="content-page">
+    <header class="article-header">
+      <span class="kicker">Background</span>
+      <h1 class="page-title">Data Science</h1>
+      <p class="lead">
+        I started my career as a Data Scientist in 2019.
+      </p>
+      <p class="lead">
+        My work focused on exploratory data analysis, feature engineering,
+        training and evaluating models, and applying machine learning to
+        real-world problems. I worked across classical machine learning, NLP,
+        and computer vision, building the foundation that now shapes how I
+        approach production-grade AI systems.
+      </p>
+      <p class="lead">
+        This archive collects EDA projects, Kaggle work, talks, and applied ML
+        projects.
+      </p>
+    </header>
+
+    {
+      years.map((year) => (
+        <section class="section">
+          <div class="section-head">
+            <h2>{year}</h2>
+            <span class="right">
+              {byYear.get(year)!.length}{" "}
+              {byYear.get(year)!.length === 1 ? "work item" : "work items"}
+            </span>
+          </div>
+          <ol class="post-list">
+            {byYear.get(year)!.map((item) => (
+              <li>
+                <WorkCard item={item} />
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))
+    }
+  </main>
+</BaseLayout>
