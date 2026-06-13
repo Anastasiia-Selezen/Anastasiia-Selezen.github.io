@@ -7,8 +7,9 @@ interface Props {
 
 const { item } = Astro.props;
 const data = item.data;
-const href = data.externalUrl ?? `/work/${item.id}/`;
-const isExternal = Boolean(data.externalUrl);
+const hasLocalPage = Boolean(item.body?.trim() || data.notebookHtml);
+const href = hasLocalPage ? `/work/${item.id}/` : data.externalUrl;
+const isExternal = !hasLocalPage && Boolean(data.externalUrl);
 const formattedDate = data.date.toLocaleDateString("en-US", {
   year: "numeric",
   month: "short",
@@ -16,33 +17,35 @@ const formattedDate = data.date.toLocaleDateString("en-US", {
 });
 ---
 
-<a
-  class="post-item"
-  href={href}
-  target={isExternal ? "_blank" : undefined}
-  rel={isExternal ? "noopener noreferrer" : undefined}
->
-  <time class="post-date" datetime={data.date.toISOString().slice(0, 10)}>
-    {formattedDate}
-  </time>
-  <div class="post-body">
-    <h3 class="post-title">
-      {data.title}
-      {isExternal && <span class="ext" aria-hidden="true">↗</span>}
-    </h3>
-    {data.summary && <p class="post-summary">{data.summary}</p>}
-    <div class="post-meta">
-      <span class="cat">{data.category}</span>
-      {data.source && <span class="source">{data.source}</span>}
-      {
-        data.tags.length > 0 && (
-          <span class="tags">
-            {data.tags.slice(0, 4).map((tag) => (
-              <span class="tag">{tag} </span>
-            ))}
-          </span>
-        )
-      }
-    </div>
-  </div>
-</a>
+{
+  href && (
+    <a
+      class="post-item"
+      href={href}
+      target={isExternal ? "_blank" : undefined}
+      rel={isExternal ? "noopener noreferrer" : undefined}
+    >
+      <time class="post-date" datetime={data.date.toISOString().slice(0, 10)}>
+        {formattedDate}
+      </time>
+      <div class="post-body">
+        <h3 class="post-title">
+          {data.title}
+          {isExternal && <span class="ext" aria-hidden="true">↗</span>}
+        </h3>
+        {data.summary && <p class="post-summary">{data.summary}</p>}
+        <div class="post-meta">
+          <span class="cat">{data.category}</span>
+          {data.source && <span class="source">{data.source}</span>}
+          {data.tags.length > 0 && (
+            <span class="tags">
+              {data.tags.slice(0, 4).map((tag) => (
+                <span class="tag">{tag} </span>
+              ))}
+            </span>
+          )}
+        </div>
+      </div>
+    </a>
+  )
+}

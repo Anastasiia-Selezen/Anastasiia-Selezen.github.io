@@ -20,12 +20,18 @@ const formattedDate = entry.data.date.toLocaleDateString("en-US", {
   month: "long",
   day: "numeric",
 });
+
+const hasArticleBody = Boolean(entry.body?.trim());
+const originalLinkLabel = entry.data.source
+  ? `Read original on ${entry.data.source}`
+  : "Read original source";
 ---
 
 <BaseLayout
   title={entry.data.title}
   description={entry.data.summary}
-  current={entry.data.status === "archive" ? "archive" : "home"}
+  current={entry.data.status === "archive" ? "data-science" : "home"}
+  canonicalUrl={Astro.url.href}
 >
   <main class="content-page">
     <header class="article-header">
@@ -52,8 +58,13 @@ const formattedDate = entry.data.date.toLocaleDateString("en-US", {
       {
         entry.data.externalUrl && (
           <div class="button-row">
-            <a class="button primary" href={entry.data.externalUrl} target="_blank" rel="noopener noreferrer">
-              Read on {entry.data.source ?? "source"}{" "}
+            <a
+              class={`button ${hasArticleBody ? "secondary" : "primary"}`}
+              href={entry.data.externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {hasArticleBody ? originalLinkLabel : `Read on ${entry.data.source ?? "source"}`}{" "}
               <span class="arrow" aria-hidden="true">→</span>
             </a>
           </div>

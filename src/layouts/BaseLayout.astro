@@ -5,12 +5,14 @@ interface Props {
   title?: string;
   description?: string;
   current?: "home" | "data-science";
+  canonicalUrl?: string;
 }
 
 const {
   title = "Anastasiia Selezen — Agentic AI Engineer",
   description = "Portfolio of Anastasiia Selezen, an Agentic AI Engineer focused on designing and building end-to-end, production-grade AI systems with LLMs, MCP-based tool layers, RAG, and applied machine learning.",
   current,
+  canonicalUrl = Astro.url.href,
 } = Astro.props;
 
 const isDefaultTitle = title.startsWith("Anastasiia Selezen");
@@ -35,6 +37,7 @@ const nav = [
     <meta property="og:type" content="website" />
     <meta property="og:url" content={Astro.url.href} />
     <meta name="twitter:card" content="summary" />
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
