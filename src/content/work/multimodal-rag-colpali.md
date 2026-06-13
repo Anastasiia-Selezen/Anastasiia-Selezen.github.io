@@ -131,11 +131,11 @@ Before starting, ensure the required Python libraries and system dependencies ar
 ### 1. Create a Knowledge Base
 ### a. Initialize the ColQwen2 model
 
-The initial step involves setting up the **ColQwen2** model using the **Byaldi** wrapper. The RAGMultiModalModel class provides a convenient interface for loading pre-trained models (such as vidore/colqwen2-v0.1) and performing retrieval tasks. This approach is particularly useful for rapid prototyping. For more advanced use cases or custom configurations, the colpali_engine package can be used directly. Find more about its usage [here](<https://huggingface.co/vidore/colpali>).
+The initial step involves setting up the **ColQwen2** model using the **Byaldi** wrapper. The `RAGMultiModalModel` class provides a convenient interface for loading pre-trained models (such as `vidore/colqwen2-v0.1`) and performing retrieval tasks. This approach is particularly useful for rapid prototyping. For more advanced use cases or custom configurations, the `colpali_engine` package can be used directly. Find more about its usage [here](<https://huggingface.co/vidore/colpali>).
 
     RAG = RAGMultiModalModel.from_pretrained("vidore/colqwen2-v0.1", device="mps")
 
-The device="mps" parameter specifies the hardware accelerator for model computations. In this example, it uses Metal Performance Shaders (MPS), optimized for Apple Silicon.
+The `device="mps"` parameter specifies the hardware accelerator for model computations. In this example, it uses Metal Performance Shaders (MPS), optimized for Apple Silicon.
 
 ### b. Index Documents
 
@@ -152,7 +152,7 @@ The next step is the indexing of the dataset. PDF pages are processed sequential
         overwrite=True
     )
 
-The input_path parameter defines the path to the dataset that will be indexed. Theindex_name parameter is a unique name for the index. The store_collection_with_index=True parameter ensures that the embeddings, metadata, and the entire image are stored together; be aware that this increases storage usage. The overwrite=True parameter allows re-indexing the same document if necessary.
+The `input_path` parameter defines the path to the dataset that will be indexed. The `index_name` parameter is a unique name for the index. The `store_collection_with_index=True` parameter ensures that the embeddings, metadata, and the entire image are stored together; be aware that this increases storage usage. The `overwrite=True` parameter allows re-indexing the same document if necessary.
 
 Output:
 
@@ -164,7 +164,7 @@ Output:
     Added page 32 of document 0 to index.
     Index exported to .byaldi/tesla_index
 
-Each line indicates that a page from the document has been successfully processed and indexed. The index is exported to .byaldi/tesla_index for storage and retrieval.
+Each line indicates that a page from the document has been successfully processed and indexed. The index is exported to `.byaldi/tesla_index` for storage and retrieval.
 
 ### c. Test Querying of Indexed Documents
 
@@ -178,7 +178,7 @@ Query 1:
     results = RAG.search(text_query, k=1)
     print(results)
 
-The text_query parameter contains the query text sent to the system. The k=1 parameter specifies that only the top 1 most relevant result should be returned.
+The `text_query` parameter contains the query text sent to the system. The `k=1` parameter specifies that only the top 1 most relevant result should be returned.
 
 Output 1:
 
@@ -186,7 +186,7 @@ The system returns a list of the most relevant page(s):
 
     [{'doc_id': 0, 'page_num': 6, 'score': 35.25, 'metadata': {}, 'base64': 'iVBORw0KGgoAAAANSU.....'}]
 
-doc_id identifies the document in the index. page_num specifies the page number containing the answer. score shows the similarity score, with higher values indicating better matches. base64 is an encoded representation of the page image for visual inspection, enabled due to the earlier setup with store_collection_with_index=True.
+`doc_id` identifies the document in the index. `page_num` specifies the page number containing the answer. `score` shows the similarity score, with higher values indicating better matches. `base64` is an encoded representation of the page image for visual inspection, enabled due to the earlier setup with `store_collection_with_index=True`.
 
 Query 2:
 
@@ -196,7 +196,7 @@ Query 2:
     results = RAG.search(text_query, k=3)
     print(results)
 
-k=3 here requests the top 3 most relevant results.
+`k=3` here requests the top 3 most relevant results.
 
 Output 2:
 
@@ -215,7 +215,7 @@ Before proceeding, the Together AI API key must be configured. Register and conf
 
 ### a. Initialize a Vision Language Model
 
-The meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo model is used for multimodal chat interactions in this article.
+The `meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo` model is used for multimodal chat interactions in this article.
 
 **Why Use Llama 3.2 Vision Instruct Turbo?**
 
@@ -256,7 +256,7 @@ For detailed performance metrics and additional information, refer to [the model
       max_tokens=300,
     )
 
-The model parameter specifies the name (model ID) of the desired model to be used. The messages parameter defines the input to the model, enabling the combination of text and images in a single query. The max_tokens parameter sets the maximum token limit for the model's response.
+The `model` parameter specifies the name (model ID) of the desired model to be used. The `messages` parameter defines the input to the model, enabling the combination of text and images in a single query. The `max_tokens` parameter sets the maximum token limit for the model's response.
 
 ### b. Wrapping Retrieval and Generation Steps into LangGraph
 
@@ -316,7 +316,7 @@ Below is the final code implementation.
     from IPython.display import Image
     Image(graph.get_graph().draw_mermaid_png())
 
-The graph visualization shows the flow from START to retrieve, then to generate, and finally to END.
+The graph visualization shows the flow from `START` to `retrieve`, then to `generate`, and finally to `END`.
 
 ![](https://cdn-images-1.medium.com/max/110/1*tua3yC1807GmkWZYzp_sDA.png)
 

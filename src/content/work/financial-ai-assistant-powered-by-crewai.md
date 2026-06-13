@@ -268,20 +268,20 @@ Each task definition consists of a description, an expected output, and the agen
 
 The next step is to define custom tools. CrewAI offers a comprehensive set of built-in tools that can be used directly by importing them from crewai_tools. More details about these tools can be found in the [documentation](<https://docs.crewai.com/concepts/tools>).
 
-However, it is also possible to create custom tools tailored to specific needs. To do this, a .py file should be created within the tools folder.
+However, it is also possible to create custom tools tailored to specific needs. To do this, a `.py` file should be created within the `tools` folder.
 
 ![](https://cdn-images-1.medium.com/max/510/1*O1H9R8nGX2xA5XcelFyP7A.png)
 
 _Custom tools_
 
-Each file is responsible for a single tool. As an example, consider stock_market_data_extraction.py. This file defines two key components:
+Each file is responsible for a single tool. As an example, consider `stock_market_data_extraction.py`. This file defines two key components:
 
-  * StockMarketDataExtractorInput, a Pydantic class used to specify the input structure.
-  * StockMarketDataExtractor, the main tool class that defines the tool itself.
+  * `StockMarketDataExtractorInput`, a Pydantic class used to specify the input structure.
+  * `StockMarketDataExtractor`, the main tool class that defines the tool itself.
 
-Within StockMarketDataExtractor, the tool's name, description, and args_schema (which refers to StockMarketDataExtractorInput) are specified.
+Within `StockMarketDataExtractor`, the tool's name, description, and `args_schema` (which refers to `StockMarketDataExtractorInput`) are specified.
 
-The _run method implements the tool's functionality. In this case, it makes a request to the [**Alpha Vantage API**](<https://www.alphavantage.co/>) to retrieve stock market data with a 5-minute interval.
+The `_run` method implements the tool's functionality. In this case, it makes a request to the [**Alpha Vantage API**](<https://www.alphavantage.co/>) to retrieve stock market data with a 5-minute interval.
 
 Here's the implementation:
 
@@ -316,28 +316,28 @@ Here's the implementation:
 
 ### Defining Communication and Collaboration Among AI Agents
 
-To integrate all components and create a crew, a few modifications to the crew.py file are needed. This includes importing the necessary tools, whether built-in or custom, and defining a FinancialAIAssistant class.
+To integrate all components and create a crew, a few modifications to the `crew.py` file are needed. This includes importing the necessary tools, whether built-in or custom, and defining a `FinancialAIAssistant` class.
 
-  * @CrewBase decorator marks this class as a CrewAI project.
-  * @agent decorator registers methods as agent definitions.
-  * @task decorator registers methods as task definitions.
-  * @crew decorator registers the method as a crew definition.
+  * `@CrewBase` decorator marks this class as a CrewAI project.
+  * `@agent` decorator registers methods as agent definitions.
+  * `@task` decorator registers methods as task definitions.
+  * `@crew` decorator registers the method as a crew definition.
 
-Class variables agents_config and tasks_config define agent roles and tasks, respectively, based on the YAML files implemented above.
+Class variables `agents_config` and `tasks_config` define agent roles and tasks, respectively, based on the YAML files implemented above.
 
-Each agent has a specific role and can use different tools to complete tasks. For example, a **Stock Market Researcher** can use StockMarketDataExtractor to pull data from Alpha Vantage.
+Each agent has a specific role and can use different tools to complete tasks. For example, a **Stock Market Researcher** can use `StockMarketDataExtractor` to pull data from Alpha Vantage.
 
-Tasks are connected, and some depend on the output of others. For example, stock_market_data_analysis_task relies on output from stock_market_data_extraction_task.
+Tasks are connected, and some depend on the output of others. For example, `stock_market_data_analysis_task` relies on output from `stock_market_data_extraction_task`.
 
-The final task, financial_analysis_task, requires data from multiple sources, including stock analysis, news analysis, and data extraction. This ensures that all necessary information is available before generating the final report.
+The final task, `financial_analysis_task`, requires data from multiple sources, including stock analysis, news analysis, and data extraction. This ensures that all necessary information is available before generating the final report.
 
-Setting async_execution=True allows tasks to run independently without blocking others. This is useful when multiple tasks can be processed in parallel, speeding up execution.
+Setting `async_execution=True` allows tasks to run independently without blocking others. This is useful when multiple tasks can be processed in parallel, speeding up execution.
 
-The output_file='report.md' setting saves the final result as a Markdown file.
+The `output_file='report.md'` setting saves the final result as a Markdown file.
 
-The @crew method also defines how agents interact. Using Process.hierarchical simulates a traditional organizational hierarchy, allowing for clear task management. In this structure, a **manager agent** coordinates the workflow, delegates tasks, and validates outcomes to ensure efficient execution. This manager agent can either be automatically created by CrewAI or explicitly set by the user, for example, using manager_agent=self.manager().
+The `@crew` method also defines how agents interact. Using `Process.hierarchical` simulates a traditional organizational hierarchy, allowing for clear task management. In this structure, a **manager agent** coordinates the workflow, delegates tasks, and validates outcomes to ensure efficient execution. This manager agent can either be automatically created by CrewAI or explicitly set by the user, for example, using `manager_agent=self.manager()`.
 
-Setting verbose=True enables detailed logs, making it easy to track execution.
+Setting `verbose=True` enables detailed logs, making it easy to track execution.
 
     from crewai import Agent, Crew, Process, Task
     from crewai.project import CrewBase, agent, crew, task
@@ -469,9 +469,9 @@ _Summary of Execution Flow_
   4. **News Researcher** extracts financial news and summarizes key insights.
   5. **Financial Analyst** processes insights and generates final report.
 
-A main.py file is automatically generated during the project creation process. This file is used to test the crew locally. Before running it, update the input parameters according to the specific use case.
+A `main.py` file is automatically generated during the project creation process. This file is used to test the crew locally. Before running it, update the input parameters according to the specific use case.
 
-In this example, the crew is instructed to analyze Nvidia by passing a **query** and a **ticker** symbol. The kickoff method starts the execution.
+In this example, the crew is instructed to analyze Nvidia by passing a **query** and a **ticker** symbol. The `kickoff` method starts the execution.
 
     #!/usr/bin/env python
     from aiassistant.crew import FinancialAIAssistant
@@ -489,7 +489,7 @@ Execute the file using the following command:
 
     crewai run
 
-If verbose=True is set, logs can be monitored during crew execution. The logs provide real-time updates on task initiation, execution flow, and completion. Example of execution logs:
+If `verbose=True` is set, logs can be monitored during crew execution. The logs provide real-time updates on task initiation, execution flow, and completion. Example of execution logs:
 
     # Agent: Stock Market Researcher
     ## Thought: I need to gather real-time stock market data for NVDA.
@@ -590,7 +590,7 @@ After execution is completed, a **Markdown file** is generated containing the fi
 
 ### A user-friendly interface for querying and viewing reports
 
-A simple and fast UI can be built using **Streamlit** to provide an interactive way for users to run financial analysis. To achieve this, an app.py file should be added to src/aiassistant/. This file defines a form where users can input their **query** and **ticker**, then trigger the crew to start the analysis. Once execution is complete, the final report will be displayed within the UI in an expandable container.
+A simple and fast UI can be built using **Streamlit** to provide an interactive way for users to run financial analysis. To achieve this, an `app.py` file should be added to `src/aiassistant/`. This file defines a form where users can input their **query** and **ticker**, then trigger the crew to start the analysis. Once execution is complete, the final report will be displayed within the UI in an expandable container.
 
     import os
     import traceback
@@ -698,7 +698,7 @@ For example, consider the log entry from above:
 
 This aligns precisely with the agent and task definitions, confirming that the correct tool is being used with the expected input.
 
-To systematically measure accuracy, a dataset can be created where each entry consists of a tuple: (task, tool(input)). By generating multiple tool calls for a given task, various performance metrics can be computed, such as:
+To systematically measure accuracy, a dataset can be created where each entry consists of a tuple: `(task, tool(input))`. By generating multiple tool calls for a given task, various performance metrics can be computed, such as:
 
   * Percentage of generated calls that are valid
   * Frequency of invalid tool usage

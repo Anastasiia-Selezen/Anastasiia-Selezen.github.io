@@ -69,7 +69,7 @@ Learn more about MCP here:
 
 An agent is anything that can perceive its environment and act upon that environment (collecting data, making decisions, and taking actions) to achieve specific goals. The three core components of an agent are the model, tools, and system prompt.
 
-In this project, [a LangChain-based implementation](<https://docs.langchain.com/oss/python/langchain/agents>) is used. The create_agent function delivers a production-ready ReAct agent that systematically combines reasoning and actions: thinking, selecting the appropriate tool, executing it, observing the outcome, refining the reasoning, and generating the final response.
+In this project, [a LangChain-based implementation](<https://docs.langchain.com/oss/python/langchain/agents>) is used. The `create_agent` function delivers a production-ready ReAct agent that systematically combines reasoning and actions: thinking, selecting the appropriate tool, executing it, observing the outcome, refining the reasoning, and generating the final response.
 
 ![](https://cdn-images-1.medium.com/max/306/1*4i37G58F9nVGAcZJe9FBYw.png)
 
@@ -94,7 +94,7 @@ Use **uv** for dependency and environment management. For details, see [the offi
 
 ### Prerequisites
 
-Before proceeding, ensure that all necessary dependencies are declared. Add them to the pyproject.toml file, then synchronize the environment by running uv sync:
+Before proceeding, ensure that all necessary dependencies are declared. Add them to the `pyproject.toml` file, then synchronize the environment by running `uv sync`:
 
     dependencies = [
         "fastapi",
@@ -129,9 +129,9 @@ Before proceeding, ensure that all necessary dependencies are declared. Add them
 
 ### FastAPI App
 
-The application's entry point is a FastAPI web service that exposes a /chat endpoint for interacting with an MCP Host-driven AI assistant. It provides a clean HTTP interface to send a natural-language query and receive a structured response produced by the agent.
+The application's entry point is a FastAPI web service that exposes a `/chat` endpoint for interacting with an MCP Host-driven AI assistant. It provides a clean HTTP interface to send a natural-language query and receive a structured response produced by the agent.
 
-Startup and shutdown are handled through FastAPI's lifespan context, which initializes the MCP Host when the app starts and performs cleanup on shutdown. The API uses two Pydantic models: ChatRequest, a simple schema with a single query string, and ChatResponse, which returns a reply string and, when applicable, a tool_calls list describing any tools invoked during reasoning.
+Startup and shutdown are handled through FastAPI's lifespan context, which initializes the MCP Host when the app starts and performs cleanup on shutdown. The API uses two Pydantic models: `ChatRequest`, a simple schema with a single query string, and `ChatResponse`, which returns a reply string and, when applicable, a `tool_calls` list describing any tools invoked during reasoning.
 
     import logging
     from typing import Any
@@ -174,21 +174,21 @@ Startup and shutdown are handled through FastAPI's lifespan context, which initi
         result = await host.process_query(prompt_text=prompt.messages[0].content.text)
         return ChatResponse(reply=result.text, tool_calls=result.tool_calls)
 
-When a request hits /chat, the service logs the query. The MCP Host fetches the system prompt by connecting to the MCP server via the MCP Client, using the configured prompt name and the user's input. The prompt is then passed to the Agent via host.process_query(). The result is returned in the ChatResponse schema, containing the assistant's reply and any recorded tool calls.
+When a request hits `/chat`, the service logs the query. The MCP Host fetches the system prompt by connecting to the MCP server via the MCP Client, using the configured prompt name and the user's input. The prompt is then passed to the Agent via `host.process_query()`. The result is returned in the `ChatResponse` schema, containing the assistant's reply and any recorded tool calls.
 
 ### MCP Host
 
-The MCP Host implements an asynchronous MCPHost that connects a LangChain ReAct agent to an MCP Tool Registry through a MCPClient. It exposes a single process_query entry point that accepts a prepared system prompt and returns the model's final text along with a structured trace of the tool calls that occurred during reasoning.
+The MCP Host implements an asynchronous `MCPHost` that connects a LangChain ReAct agent to an MCP Tool Registry through a `MCPClient`. It exposes a single `process_query` entry point that accepts a prepared system prompt and returns the model's final text along with a structured trace of the tool calls that occurred during reasoning.
 
-Initialization and shutdown are managed explicitly: initialize() starts all MCP connections via the connection manager, while cleanup() closes them, with guards preventing usage before initialization.
+Initialization and shutdown are managed explicitly: `initialize()` starts all MCP connections via the connection manager, while `cleanup()` closes them, with guards preventing usage before initialization.
 
-System prompts can be retrieved through get_system_prompt(name, args), which fetches server-defined prompts such as the scope_financial_analysis_prompt used by the FastAPI layer.
+System prompts can be retrieved through `get_system_prompt(name, args)`, which fetches server-defined prompts such as `scope_financial_analysis_prompt` used by the FastAPI layer.
 
-When handling a query, the host wraps the prompt as a SystemMessage and invokes the agent asynchronously with a bounded recursion limit. The agent is created by _get_agent(), which uses LangChain's create_agent and supplies tools discovered from the MCP server.
+When handling a query, the host wraps the prompt as a `SystemMessage` and invokes the agent asynchronously with a bounded recursion limit. The agent is created by `_get_agent()`, which uses LangChain's `create_agent` and supplies tools discovered from the MCP server.
 
-Tool definitions are adapted into LangChain StructuredTool wrappers via _load_langgraph_tools(), and each wrapper provides an async coroutine that logs the call and delegates execution to connection_manager.call_tool(...). This keeps the MCP tool schemas as the source of truth while presenting them in a LangChain-friendly form.
+Tool definitions are adapted into LangChain `StructuredTool` wrappers via `_load_langgraph_tools()`, and each wrapper provides an async coroutine that logs the call and delegates execution to `connection_manager.call_tool(...)`. This keeps the MCP tool schemas as the source of truth while presenting them in a LangChain-friendly form.
 
-After the agent runs, the host extracts the final assistant text with _get_final_message_text and assembles a record of executed tool calls with _collect_tool_calls. If the agent exceeds the step limit and triggers a GraphRecursionError, the host returns a safe fallback message. All results are packaged as ChatResult, containing the final text and an ordered tool_calls list.
+After the agent runs, the host extracts the final assistant text with `_get_final_message_text` and assembles a record of executed tool calls with `_collect_tool_calls`. If the agent exceeds the step limit and triggers a `GraphRecursionError`, the host returns a safe fallback message. All results are packaged as `ChatResult`, containing the final text and an ordered `tool_calls` list.
 
     class MCPHost:
         def __init__(self, model: str = "gpt-5-mini"):
@@ -251,23 +251,23 @@ After the agent runs, the host extracts the final assistant text with _get_final
                     tool_calls=[],
                 )
 
-The code above shows the implementation of process_query. Find the implementation of the helper functions in the [repository](<https://github.com/Anastasiia-Selezen/finAssistant_mcphost>):
+The code above shows the implementation of `process_query`. Find the implementation of the helper functions in the [repository](<https://github.com/Anastasiia-Selezen/finAssistant_mcphost>):
 
 [GitHub - Anastasiia-Selezen/finAssistant_mcphost](<https://github.com/Anastasiia-Selezen/finAssistant_mcphost>)
 
 ### MCP Client
 
-This module is a compact connection manager for MCP that opens a single ClientSession to a configured server and then exposes simple helpers to list tools/prompts, call tools, fetch prompts, and shut everything down cleanly.
+This module is a compact connection manager for MCP that opens a single `ClientSession` to a configured server and then exposes simple helpers to list tools/prompts, call tools, fetch prompts, and shut everything down cleanly.
 
-At startup, initialize_all() connects to the "tool-registry" defined in AVAILABLE_SERVERS, which maps server keys to transport settings.
+At startup, `initialize_all()` connects to the `tool-registry` defined in `AVAILABLE_SERVERS`, which maps server keys to transport settings.
 
-The main entry point, connect_to_server(server_key), resolves the config and chooses a transport. In this case it uses Streamable-HTTP, sets up an SSE/Web stream via streamablehttp_client(...), and hands the streams to _run_session(...), which constructs and initializes the ClientSession, prints connection banners, and, when available, shows a session ID.
+The main entry point, `connect_to_server(server_key)`, resolves the config and chooses a transport. In this case it uses `streamable-http`, sets up an SSE/Web stream via `streamablehttp_client(...)`, and hands the streams to `_run_session(...)`, which constructs and initializes the `ClientSession`, prints connection banners, and, when available, shows a session ID.
 
 After initialization, it lists tools and prompts for quick visibility.
 
-There are some helper functions: get_mcp_tools() passes through to list_tools(), get_prompt(name, args) retrieves a server-defined prompt, and call_tool(function_name, function_args) invokes a tool with the given arguments.
+There are some helper functions: `get_mcp_tools()` passes through to `list_tools()`, `get_prompt(name, args)` retrieves a server-defined prompt, and `call_tool(function_name, function_args)` invokes a tool with the given arguments.
 
-When finished, cleanup_all() closes every open context via the exit stack, ensuring a tidy shutdown without dangling resources.
+When finished, `cleanup_all()` closes every open context via the exit stack, ensuring a tidy shutdown without dangling resources.
 
     from contextlib import AsyncExitStack
 
@@ -364,7 +364,7 @@ First, ensure the MCP server is running. Check how to do it [here](</work/mcp-se
 
 Start the FastAPI app with command:
 
-uvicorn src.api.chat:app --host localhost --port 5005
+    uvicorn src.api.chat:app --host localhost --port 5005
 
 After starting, logs similar to the following should appear:
 
@@ -401,13 +401,13 @@ After starting, logs similar to the following should appear:
     INFO:     Application startup complete.
     INFO:     Uvicorn running on http://localhost:5005 (Press CTRL+C to quit)
 
-Uvicorn launches the FastAPI app and completes application initialization. In parallel, the MCP client connects to the Tool Registry over Streamable-HTTP at http://localhost:5555/mcp, establishes a session (session ID displayed in the logs), and negotiates protocol version 2025-06-18.
+Uvicorn launches the FastAPI app and completes application initialization. In parallel, the MCP client connects to the Tool Registry over `streamable-http` at <http://localhost:5555/mcp>, establishes a session (session ID displayed in the logs), and negotiates protocol version `2025-06-18`.
 
-Available tools and the prompt are listed for use. The application is served at http://localhost:5005.
+Available tools and the prompt are listed for use. The application is served at <http://localhost:5005>.
 
 **Testing via Swagger**
 
-Navigate to /docs to open the Swagger UI and submit a test request.
+Navigate to `/docs` to open the Swagger UI and submit a test request.
 
 Example payload:
 
@@ -438,7 +438,7 @@ After the request is submitted, logs similar to the following should appear:
     INFO:httpx:HTTP Request: POST http://localhost:5555/mcp "HTTP/1.1 200 OK"
     INFO:mcp_host:MCP tool 'sec_get_latest_10k_metadata' returned meta=None content=[TextContent(type='text', text='{"ticker":"TSLA","cik":"1318605","filing":{"ticker":"TSLA","formType":"10-K/A","accessionNo":"0001104659-25-042659","cik":"1318605","companyNameLong":"Tesla, Inc. (Filer)","companyName":"Tesla, Inc.","linkToFilingDetails":"https://www.sec.gov/Archives/edgar/data/1318605/000110465925042659/tm252787d2_10ka.htm","description":"Form 10-K/A - Annual report [Section 13 and 15(d), not S-K Item 405]: [Amend]","linkToTxt":"https://www.sec.gov/Archives/edgar/data/1318605/000110465925042659/0001104659-25-042659.txt","filedAt":"2025-04-30T17:08:56-04:00","documentFormatFiles":[{"sequence":"1","size":"874910","documentUrl":"https://www.sec.gov/ix?doc=/Archives/edgar/data/1318605/000110465925042659/tm252787d2_10ka.htm","description":"FORM 10-K/A","type":"10-K/A"},{"sequence":"2","size":"2916","documentUrl":"https://www.sec.gov/Archives/edgar/data/1318605/000110465925042659/tm252787d2_ex31-3.htm","description":"EXHIBIT 31.3","type":"EX-31.3"}
 
-The logs show that the LLM received a query asking to identify the company behind the Model Y, find its ticker, and retrieve intraday data, news sentiment, and recent 10-K information. The first search for "Tesla Model Y" returned no match, followed by a successful search for "Tesla," which resolved to the ticker TSLA. The host then executed the tools for intraday data, news sentiment, and SEC 10-K metadata, each completing with HTTP 200 OK responses.
+The logs show that the LLM received a query asking to identify the company behind the Model Y, find its ticker, and retrieve intraday data, news sentiment, and recent 10-K information. The first search for "Tesla Model Y" returned no match, followed by a successful search for "Tesla," which resolved to the ticker `TSLA`. The host then executed the tools for intraday data, news sentiment, and SEC 10-K metadata, each completing with HTTP 200 OK responses.
 
 At completion, the agent returns the final response:
 
@@ -467,7 +467,7 @@ At completion, the agent returns the final response:
 
 It contains all the requested information, structured in a clear, easy-to-understand format, with corresponding links to the news sources and the 10-K filing text. This makes the response reliable and verifiable.
 
-The response body follows the ChatResponse schema defined in the FastAPI app and contains two parts: a reply and tool_calls. The tool_calls field is a list of traces for every tool the agent invoked, each entry records the tool name, the arguments provided, and the result.
+The response body follows the `ChatResponse` schema defined in the FastAPI app and contains two parts: a reply and `tool_calls`. The `tool_calls` field is a list of traces for every tool the agent invoked, each entry records the tool name, the arguments provided, and the result.
 
 These traces are valuable for debugging (to investigate failures) and for optimization (to see where the system may stall or make unnecessary tool calls). It's a good practice to keep these traces in logs or send them to observability stack.
 
@@ -510,7 +510,7 @@ The MCP Host focuses on reasoning and orchestration, the MCP Client manages reli
 
   * **Standardized Integration:** MCP provides a consistent, open protocol for connecting AI models with external tools, prompts and resources, reducing the need for custom glue code.
   * **Modularity:** New tools or data sources can be added without changing core logic.
-  * **Extensible deployment:** FastAPI with Streamable HTTP works for both local development and scalable production.
+  * **Extensible deployment:** FastAPI with `streamable-http` works for both local development and scalable production.
 
 ## Cons:
 

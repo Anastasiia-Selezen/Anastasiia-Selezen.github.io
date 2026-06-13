@@ -92,7 +92,7 @@ Use **uv** for dependency and environment management. For details, see [the offi
 
 ### Prerequisites
 
-Before proceeding, ensure that all necessary dependencies are declared. Add them to the pyproject.toml file, then synchronize the environment by running uv sync:
+Before proceeding, ensure that all necessary dependencies are declared. Add them to the `pyproject.toml` file, then synchronize the environment by running `uv sync`:
 
     dependencies = [
         "anyio",
@@ -145,13 +145,13 @@ If only a subset of tools should be exposed to the LLM, FastMCP's proxy enables 
 
 For this project, **three tools** are exposed:
 
-  * **get_intraday**: Retrieves intraday time series data. It fetches recent OHLCV candles for a specified ticker at a chosen interval (proxy for Alpha Vantage TIME_SERIES_INTRADAY).
-  * **get_news_sentiment:** Retrieves news sentiment data. It returns recent news items and sentiment scores for a specified ticker (proxy for Alpha Vantage NEWS_SENTIMENT).
-  * **search_symbol.** Searches for a stock symbol. It finds valid tickers based on a company name or keyword query (proxy for Alpha Vantage SYMBOL_SEARCH).
+  * **`get_intraday`**: Retrieves intraday time series data. It fetches recent OHLCV candles for a specified ticker at a chosen interval (proxy for Alpha Vantage `TIME_SERIES_INTRADAY`).
+  * **`get_news_sentiment`**: Retrieves news sentiment data. It returns recent news items and sentiment scores for a specified ticker (proxy for Alpha Vantage `NEWS_SENTIMENT`).
+  * **`search_symbol`**: Searches for a stock symbol. It finds valid tickers based on a company name or keyword query (proxy for Alpha Vantage `SYMBOL_SEARCH`).
 
 ### Configuration
 
-A minimal config supplies the upstream Alpha Vantage MCP URL and authentication details, defines the transport layer (streamable-http), and sets headers for handling response encoding/compression.
+A minimal config supplies the upstream Alpha Vantage MCP URL and authentication details, defines the transport layer (`streamable-http`), and sets headers for handling response encoding/compression.
 
     ALPHAVANTAGE_MCP_CONFIG = {
         "mcpServers": {
@@ -176,7 +176,7 @@ Create the proxy (client-side) and a local FastMCP server definition that will h
 
 ### Filtering to a selected subset of tools
 
-_SELECTED_TOOLS maps remote tool IDs to local aliases. load_alpha_vantage_tools() calls await alphavantage_proxy.get_tools() to pull the remote tool inventory. For each selected tool, the function looks it up by its remote name, uses Tool.from_tool(proxy_tool, name=local_name) to clone the tool but with a local alias, and registers it on the local alphavantage_mcp with add_tool(...).
+`_SELECTED_TOOLS` maps remote tool IDs to local aliases. `load_alpha_vantage_tools()` calls `await alphavantage_proxy.get_tools()` to pull the remote tool inventory. For each selected tool, the function looks it up by its remote name, uses `Tool.from_tool(proxy_tool, name=local_name)` to clone the tool but with a local alias, and registers it on the local `alphavantage_mcp` with `add_tool(...)`.
 
     _SELECTED_TOOLS = {
         "TIME_SERIES_INTRADAY": "get_intraday",
@@ -210,7 +210,7 @@ _SELECTED_TOOLS maps remote tool IDs to local aliases. load_alpha_vantage_tools(
         _tools_loaded = True
         log.info("Alpha Vantage tools ready.")
 
-Registering tools on alphavantage_mcp ensures the local copies win over mirrored versions, allowing you to expose only the intended subset.
+Registering tools on `alphavantage_mcp` ensures the local copies win over mirrored versions, allowing you to expose only the intended subset.
 
 The complete implementation is available in the [repository](<https://github.com/Anastasiia-Selezen/finAssistant_mcpserver>).
 
@@ -222,17 +222,17 @@ Details on other Alpha Vantage MCP tools, parameters, and response schemas can b
 
 The SEC MCP server definition exposes three tools:
 
-  * **sec_map_ticker_to_cik**: Maps a stock ticker symbol to its Central Index Key (CIK). It enables conversion from a public ticker (e.g., AAPL) to the corresponding SEC identifier used in filings.
-  * **sec_get_latest_10k_metadata**: Retrieves metadata for the latest 10-K filing of a given ticker symbol, including filing date, accession number, and report details.
-  * **sec_get_latest_10k_text**: Extracts text content from the latest 10-K filing of a ticker symbol. It can optionally limit the output to specific sections such as _Management Discussion_ or _Risk Factors_.
+  * **`sec_map_ticker_to_cik`**: Maps a stock ticker symbol to its Central Index Key (CIK). It enables conversion from a public ticker (e.g., `AAPL`) to the corresponding SEC identifier used in filings.
+  * **`sec_get_latest_10k_metadata`**: Retrieves metadata for the latest 10-K filing of a given ticker symbol, including filing date, accession number, and report details.
+  * **`sec_get_latest_10k_text`**: Extracts text content from the latest 10-K filing of a ticker symbol. It can optionally limit the output to specific sections such as `Management Discussion` or `Risk Factors`.
 
 ### Creating the server definition
 
 The example below shows how a tool is created; the other two tools follow the same pattern.
 
-  * Import SECAPIClient, which encapsulates all SEC API interactions.
+  * Import `SECAPIClient`, which encapsulates all SEC API interactions.
   * Initialize FastMCP.
-  * Decorate each function with @sec_mcp.tool(...) to expose it as an MCP tool with a description, tags, and annotations.
+  * Decorate each function with `@sec_mcp.tool(...)` to expose it as an MCP tool with a description, tags, and annotations.
 
 ```python
 import asyncio
@@ -266,27 +266,27 @@ async def map_ticker_to_cik(ticker: str):
 
   * **description:** Human-readable summary of the tool.
   * **tags:** Useful for grouping, discovery, and server-/client-side filtering (e.g., FastMCP supports tag-based filtering).
-  * **annotations:** Metadata hints used by clients and LLM hosts.
-  * **readOnlyHint: True** -- declares the tool does not modify state.
-  * **openWorldHint: True** -- indicates it talks to external systems.
+  * **`annotations`:** Metadata hints used by clients and LLM hosts.
+  * **`readOnlyHint: True`** -- declares the tool does not modify state.
+  * **`openWorldHint: True`** -- indicates it talks to external systems.
 
 With these annotations, the function is exposed as a **read-only, external-data** tool "Map Ticker to CIK", appropriately tagged for LLM discovery via MCP.
 
 ### Call flow
 
-In the tool function, SECAPIClient.map_ticker_to_cik is invoked and wrapped with asyncio.to_thread(...) because SECAPIClient.map_ticker_to_cik is synchronous (network I/O). Offloading the call keeps the MCP Server responsive and scalable.
+In the tool function, `SECAPIClient.map_ticker_to_cik` is invoked and wrapped with `asyncio.to_thread(...)` because `SECAPIClient.map_ticker_to_cik` is synchronous (network I/O). Offloading the call keeps the MCP Server responsive and scalable.
 
-SECAPIClient.map_ticker_to_cik accepts a ticker and returns the corresponding CIK as a string; the MCP tool then packages the result into a dictionary (e.g., {"ticker": "...", "cik": "..."}).
+`SECAPIClient.map_ticker_to_cik` accepts a ticker and returns the corresponding CIK as a string; the MCP tool then packages the result into a dictionary (e.g., `{"ticker": "...", "cik": "..."}`).
 
-This separation keeps the MCP server definition clear and minimal, with operational logic contained in sec_api_client.py.
+This separation keeps the MCP server definition clear and minimal, with operational logic contained in `sec_api_client.py`.
 
-### SECAPIClient class implementation
+### `SECAPIClient` class implementation
 
-The SECAPIClient class encapsulates helper methods used by map_ticker_to_cik.
+The `SECAPIClient` class encapsulates helper methods used by `map_ticker_to_cik`.
 
-Its constructor gets the API key from settings.SEC_API_KEY unless an explicit api_key is provided, raising an EnvironmentError if none is available.
+Its constructor gets the API key from `settings.SEC_API_KEY` unless an explicit `api_key` is provided, raising an `EnvironmentError` if none is available.
 
-It initializes QueryApi, ExtractorApi, and MappingApi from sec_api, stores a default tuple of common 10-K item numbers ("1", "1A", "7", "7A", "8") for later extraction, and maintains a _cik_cache: Dict[str, str] to memoize ticker to CIK lookups, reducing latency and API usage.
+It initializes `QueryApi`, `ExtractorApi`, and `MappingApi` from `sec_api`, stores a default tuple of common 10-K item numbers ("1", "1A", "7", "7A", "8") for later extraction, and maintains a `_cik_cache: Dict[str, str]` to memoize ticker to CIK lookups, reducing latency and API usage.
 
     import re
     from collections.abc import Iterable
@@ -320,9 +320,9 @@ It initializes QueryApi, ExtractorApi, and MappingApi from sec_api, stores a def
             self.default_sections = tuple(default_sections or ("1", "1A", "7", "7A", "8"))
             self._cik_cache: dict[str, str] = {}
 
-The map_ticker_to_cik method normalizes and validates the ticker, checks the cache, and delegates resolution to _resolve_cik_by_ticker, raising an error if resolution fails.
+The `map_ticker_to_cik` method normalizes and validates the ticker, checks the cache, and delegates resolution to `_resolve_cik_by_ticker`, raising an error if resolution fails.
 
-The _resolve_cik_by_ticker helper invokes the MappingApi, processes the response and extracts only the necessary CIK value for return.
+The `_resolve_cik_by_ticker` helper invokes the `MappingApi`, processes the response and extracts only the necessary CIK value for return.
 
         def map_ticker_to_cik(self, ticker: str) -> str:
             """Return the CIK for the given ticker symbol."""
@@ -364,7 +364,7 @@ The _resolve_cik_by_ticker helper invokes the MappingApi, processes the response
                     return str(cik).strip()
             return None
 
-The functions get_latest_10k_metadata and get_latest_10k_text follow the same logic as map_ticker_to_cik, encapsulating API interactions and functionality within the client class while keeping the MCP server definition minimalistic. The complete implementation is available in the [repository](<https://github.com/Anastasiia-Selezen/finAssistant_mcpserver>).
+The functions `get_latest_10k_metadata` and `get_latest_10k_text` follow the same logic as `map_ticker_to_cik`, encapsulating API interactions and functionality within the client class while keeping the MCP server definition minimalistic. The complete implementation is available in the [repository](<https://github.com/Anastasiia-Selezen/finAssistant_mcpserver>).
 
 [GitHub - Anastasiia-Selezen/finAssistant_mcpserver](<https://github.com/Anastasiia-Selezen/finAssistant_mcpserver>)
 
@@ -375,7 +375,7 @@ The Agent Scope MCP server definition does not invoke tools like the two servers
 **Setup**
 
   * Initialize a FastMCP server instance.
-  * Use the @agent_scope_mcp.prompt(...) decorator to publish a prompt named financial_analysis_prompt.
+  * Use the `@agent_scope_mcp.prompt(...)` decorator to publish a prompt named `financial_analysis_prompt`.
 
 **Behavior**
 
@@ -404,7 +404,7 @@ The prompt function accepts query and returns a formatted system prompt.
         log.info(f"Formatting financial analysis prompt with arguments: {query}")
         return SYSTEM_PROMPT.format(query)
 
-SYSTEM_PROMPT is a template string that includes a placeholder for the query.
+`SYSTEM_PROMPT` is a template string that includes a placeholder for the query.
 
     # prompts.py
 
@@ -437,20 +437,20 @@ An aggregator MCP Server ("tool registry") that imports several MCP Servers/serv
 
 ### Class attributes
 
-  * self.registry = FastMCP("tool_registry"): FastMCP server instance that exposes all imported tools, prompts, and resources.
-  * self.all_tags: Set[str]: Deduplicated set of tool tags across imported servers.
-  * self._is_initialized: Initialization guard to prevent re-running setup (ensures idempotence).
+  * `self.registry`: FastMCP server instance named `tool_registry` that exposes all imported tools, prompts, and resources.
+  * `self.all_tags: Set[str]`: Deduplicated set of tool tags across imported servers.
+  * `self._is_initialized`: Initialization guard to prevent re-running setup (ensures idempotence).
 
 ### Initialization flow
 
-  1. import_server(..., prefix=...): Imports the three upstream server definitions with distinct prefixes.
+  1. `import_server(..., prefix=...)`: Imports the three upstream server definitions with distinct prefixes.
   2. Collects tags from all exposed tools.
   3. Marks the registry as initialized.
 
 ### Accessors
 
-  * get_registry(): Returns the aggregated FastMCP server (single endpoint).
-  * get_all_tags(): Returns the precomputed tag set for discovery and filtering.
+  * `get_registry()`: Returns the aggregated FastMCP server (single endpoint).
+  * `get_all_tags()`: Returns the precomputed tag set for discovery and filtering.
 
 ```python
 import logging
@@ -498,7 +498,7 @@ class McpServersRegistry:
 
 > Note that when a server is [**imported**](<https://gofastmcp.com/python-sdk/fastmcp-server-server#import-server>), its objects are immediately registered to the importing server. This is a one-time operation and future changes to the imported server will not be reflected in the importing server.
 
-> Unlike importing (with [import_server](<https://gofastmcp.com/python-sdk/fastmcp-server-server#import-server>)), [**mounting**](<https://gofastmcp.com/python-sdk/fastmcp-server-server#mount>)establishes a dynamic connection between servers. This means changes to the mounted server are immediately reflected when accessed through the parent.
+> Unlike importing (with [`import_server`](<https://gofastmcp.com/python-sdk/fastmcp-server-server#import-server>)), [**mounting**](<https://gofastmcp.com/python-sdk/fastmcp-server-server#mount>) establishes a dynamic connection between servers. This means changes to the mounted server are immediately reflected when accessed through the parent.
 
 > Source: [FastMCP documentation](<https://gofastmcp.com/python-sdk/fastmcp-server-server>)
 
@@ -510,7 +510,7 @@ This code is adapted from the [**enterprise-mcp-course**](<https://github.com/de
 
 Once all MCP Servers/server definitions are implemented, start a single Tool Registry MCP Server that aggregates the upstream servers and exposes one endpoint.
 
-In the code below, McpServersRegistry() constructs the registry object. anyio.run(mcp_tool_manager.initialize) runs the async initialization, importing upstream servers and registering tools and the prompt. mcp_tool_manager.get_registry().run(...) then launches the server over the streamable-http transport on localhost:5555.
+In the code below, `McpServersRegistry()` constructs the registry object. `anyio.run(mcp_tool_manager.initialize)` runs the async initialization, importing upstream servers and registering tools and the prompt. `mcp_tool_manager.get_registry().run(...)` then launches the server over the `streamable-http` transport on `localhost:5555`.
 
     # main.py
     import anyio
@@ -527,7 +527,7 @@ In the code below, McpServersRegistry() constructs the registry object. anyio.ru
     if __name__ == "__main__":
         main()
 
-After running uv run main.py, the following logs appear:
+After running `uv run main.py`, the following logs appear:
 
     INFO:server.tool_registry:Initializing McpServersRegistry...
     INFO:server.alpha_vantage:Loading Alpha Vantage tools via FastMCP proxy...
@@ -566,7 +566,7 @@ After running uv run main.py, the following logs appear:
     INFO:     Application startup complete.
     INFO:     Uvicorn running on http://localhost:5555 (Press CTRL+C to quit)
 
-This log indicates that the aggregated Tool Registry MCP Server is running, available at <http://localhost:5555/mcp>, and ready for MCP clients to connect over the streamable-http transport. 🎉
+This log indicates that the aggregated Tool Registry MCP Server is running, available at <http://localhost:5555/mcp>, and ready for MCP clients to connect over the `streamable-http` transport. 🎉
 
 ## How to test the MCP Server
 
@@ -592,11 +592,11 @@ _Inspecting alphavantage_get_intraday tool_
 
 Click **Run Tool** to execute it. Once the execution is complete, a **Tool Result: Success/Error** message will appear below the button.
 
-The returned result can also be viewed. In this example, the **alphavantage_get_intraday** tool was executed with the parameters **AMD** and **5min. T** he result is shown in the image below.
+The returned result can also be viewed. In this example, the `alphavantage_get_intraday` tool was executed with the parameters `AMD` and `5min`. The result is shown in the image below.
 
 ![](https://cdn-images-1.medium.com/max/1024/1*JslmYy7wPvbGlPa4Z9Su6Q.png)
 
-Also, checking the MCP Server logs shows that it received the request. A local MCP client connected over _streamable-http_ , creating a new transport session. The server processed a **ListToolsRequest** and then a **CallToolRequest**. That call triggered the Alpha Vantage upstream MCP: a client session was established (session ID shown), protocol version **2024-11-05** was negotiated and calls to upstream server were made.
+Also, checking the MCP Server logs shows that it received the request. A local MCP client connected over `streamable-http`, creating a new transport session. The server processed a `ListToolsRequest` and then a `CallToolRequest`. That call triggered the Alpha Vantage upstream MCP: a client session was established (session ID shown), protocol version `2024-11-05` was negotiated and calls to upstream server were made.
 
     INFO:mcp.server.streamable_http_manager:Created new transport with session ID: 8430e746a8c6497da9fef67b7b5e2cda
     INFO:     ::1:60145 - "POST /mcp HTTP/1.1" 200 OK
@@ -619,24 +619,24 @@ In this simple way, it is possible to manually check a tool and observe what is 
 
 ## Conclusion
 
-This article provides a step-by-step guide to implementing and evaluating MCP Server with FastMCP and MCP Inspector. The resulting architecture exposes a single-endpoint Tool Registry MCP Server that composes three focused server/server definitions: a proxy for the official Alpha Vantage MCP, a custom SEC MCP with core logic in SECAPIClient**,** and an Agent Scope prompts server definition, so MCP hosts and clients can query a consistent interface. This small example can be easily extended to a production system in the future.
+This article provides a step-by-step guide to implementing and evaluating MCP Server with FastMCP and MCP Inspector. The resulting architecture exposes a single-endpoint Tool Registry MCP Server that composes three focused server/server definitions: a proxy for the official Alpha Vantage MCP, a custom SEC MCP with core logic in `SECAPIClient`, and an Agent Scope prompts server definition, so MCP hosts and clients can query a consistent interface. This small example can be easily extended to a production system in the future.
 
 ## Pros:
 
-  * **One endpoint, many tools:** Alpha Vantage, SEC, and prompt tools appear under a single interface, making MCP client setup and tool discovery (tags, titles, annotations) straightforward.
-  * **Clear separation of concerns:** Minimalistic tool wrappers. Provider-specific logic lives in SECAPIClient.
+  * **One endpoint, many tools:** Alpha Vantage, SEC, and prompt tools appear under a single interface, making MCP client setup and tool discovery (`tags`, `titles`, `annotations`) straightforward.
+  * **Clear separation of concerns:** Minimalistic tool wrappers. Provider-specific logic lives in `SECAPIClient`.
   * **Reusable building blocks:** Each server stands on its own and can be reused across other projects.
   * **Easy to test:** MCP Inspector enables quick manual checks. Logs show session IDs, protocol negotiation, and upstream calls for transparent debugging.
 
 ## Cons:
 
-  * **Added latency:** Each call spins up a Streamable-HTTP session and runs MCP negotiation, which is slower than direct SDK calls.
-  * **Import vs. mount trade-off:** import_server takes a snapshot of tools, upstream changes won't appear dynamically unless mount is used.
+  * **Added latency:** Each call spins up a `streamable-http` session and runs MCP negotiation, which is slower than direct SDK calls.
+  * **Import vs. mount trade-off:** `import_server` takes a snapshot of tools, upstream changes won't appear dynamically unless `mount` is used.
   * **Security risks:** MCP Servers pose significant security risks because they can execute commands and perform API calls.
 
 ## Lessons Learned
 
-  1. **Structure matters:** Define a clear, understandable tool interface with precise names, meaningful tags, and concise descriptions. Keep server implementations minimal and move core logic into helper classes (e.g., SECAPIClient) to stay maintainable and extensible.
+  1. **Structure matters:** Define a clear, understandable tool interface with precise names, meaningful tags, and concise descriptions. Keep server implementations minimal and move core logic into helper classes (e.g., `SECAPIClient`) to stay maintainable and extensible.
   2. **Use structured logging:** Consistent, detailed logs make issues easy to trace and significantly speed up debugging.
   3. **Leverage MCP Inspector:** It's an effective way to manually validate that tools behave as expected.
   4. **Choose import vs. mount intentionally:** Use import for stable, snapshot-style integration and mount when live updates from upstream servers are required.

@@ -25,7 +25,7 @@ The objective of this project is to enhance the Financial AI Assistant by adopti
 
 ### System requirements
 
-The AI Assistant can retrieve real-time stock data, market news, and SEC filings for publicly traded companies. It analyzes this information and returns clear, well-grounded answers to user requests. It **does not** provide investment advice or recommendations, its purpose is to**help analyze** stocks, companies, and market data.
+The AI Assistant can retrieve real-time stock data, market news, and SEC filings for publicly traded companies. It analyzes this information and returns clear, well-grounded answers to user requests. It **does not** provide investment advice or recommendations, its purpose is to **help analyze** stocks, companies, and market data.
 
 By connecting to external tools, such as an Alpha Vantage MCP server and an SEC MCP server, the assistant keeps information up-to-date, improving accuracy, relevance, and utility.
 
@@ -97,7 +97,7 @@ In MCP, a **host** can manage any number of **clients**. Each **client** maintai
 
 This can be simplified with an aggregator (proxy) server placed in front of downstream servers. The aggregator exposes a single, unified server interface while maintaining separate connections behind the scenes.
 
-[LangChain's ](<https://docs.langchain.com/oss/python/langchain/mcp#use-mcp-tools>)[MultiServerMCPClient](<https://docs.langchain.com/oss/python/langchain/mcp#use-mcp-tools>) offers this "one client façade → many servers" pattern: it takes a map of server configurations, opens one MCP connection per server, and presents a single client object to the application. This is well-suited when plugging in ready-made MCP servers.
+LangChain's [`MultiServerMCPClient`](<https://docs.langchain.com/oss/python/langchain/mcp#use-mcp-tools>) offers this "one client façade → many servers" pattern: it takes a map of server configurations, opens one MCP connection per server, and presents a single client object to the application. This is well-suited when plugging in ready-made MCP servers.
 
 When several servers are being developed in-house, a custom aggregator (e.g., a [FastMCP wrapper server](<https://gofastmcp.com/python-sdk/fastmcp-server-server#import-server>) that imports and composes other MCP servers) may be preferred for tighter control over routing, auth, logging, and evolution of server contracts.
 
@@ -108,7 +108,7 @@ MCP is a stateful protocol and therefore requires explicit lifecycle management 
   2. Operation
   3. Shutdown
 
-During **initialization**, the client and server agree on a protocol version and the capabilities they will use. MCP's data layer relies on JSON-RPC 2.0 to structure all client-server messages. The handshake begins with the client sending an initialize request. In this request, jsonrpc is always "2.0", id correlates the response, method is "initialize", and params includes the requested protocolVersion, the client's offered capabilities (for example, roots events, sampling, and elicitation), and clientInfo for diagnostics and display. Example:
+During **initialization**, the client and server agree on a protocol version and the capabilities they will use. MCP's data layer relies on JSON-RPC 2.0 to structure all client-server messages. The handshake begins with the client sending an initialize request. In this request, `jsonrpc` is always "2.0", `id` correlates the response, `method` is "initialize", and `params` includes the requested `protocolVersion`, the client's offered capabilities (for example, roots events, sampling, and elicitation), and `clientInfo` for diagnostics and display. Example:
 
     {
       "jsonrpc": "2.0",
@@ -131,7 +131,7 @@ During **initialization**, the client and server agree on a protocol version and
       }
     }
 
-The server replies with an initialize result that mirrors the structure: the agreed protocolVersion, the server's capabilities (such as tools, resources, and prompts), serverInfo for observability, and optional instructions to guide client behavior.
+The server replies with an initialize result that mirrors the structure: the agreed `protocolVersion`, the server's capabilities (such as tools, resources, and prompts), `serverInfo` for observability, and optional instructions to guide client behavior.
 
     {
       "jsonrpc": "2.0",

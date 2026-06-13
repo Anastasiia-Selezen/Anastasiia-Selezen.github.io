@@ -77,7 +77,7 @@ Begin by reading the PDF file using PyPDF2:
             print(f"Error reading file {file_path}: {e}")
         return ""
 
-This function opens the PDF file in binary read mode and extracts text from each page, concatenating it into a single string -- full_text. It also retrieves text from the first page (text_first_page), which will be used for classification purposes.
+This function opens the PDF file in binary read mode and extracts text from each page, concatenating it into a single string -- `full_text`. It also retrieves text from the first page (`text_first_page`), which will be used for classification purposes.
 
 In case of an error, the function returns empty strings for both outputs.
 
@@ -89,7 +89,7 @@ The advantage of this approach is that a large dataset is not required, which wo
 
 > In scenarios where documents can be easily classified by examining keywords, or when a dataset is already available or simple to compile, alternative approaches such as using rule-based techniques or training a simpler machine learning model (e.g., SVM) might be preferable to reduce the costs associated with using an external API.
 
-Three documents serve as examples for three classes: "10-K," "8-K," and "UNKNOWN." To optimize token usage within the context window, only the first pages of each document are used, based on the assumption that sufficient information is present to establish boundaries between the classes. In the function below, k_10_first_page, _ = load_file(file_10k), the "_" symbol represents a throwaway variable, indicating that the full text of the document is unnecessary for classification.
+Three documents serve as examples for three classes: "10-K," "8-K," and "UNKNOWN." To optimize token usage within the context window, only the first pages of each document are used, based on the assumption that sufficient information is present to establish boundaries between the classes. In the function below, `k_10_first_page, _ = load_file(file_10k)`, the `_` symbol represents a throwaway variable, indicating that the full text of the document is unnecessary for classification.
 
 By introducing the "UNKNOWN" class, it ensures that if a user unintentionally or intentionally uploads a different document than expected, the system won't attempt to extract data from it, preventing any disruption in the workflow.
 
@@ -160,7 +160,7 @@ Create your API key in Google AI Studio [here](<https://aistudio.google.com/app/
 
 ### 4. Classify Documents
 
-Compile the document_classification function, which utilizes the previously defined functions to classify the document:
+Compile the `document_classification` function, which utilizes the previously defined functions to classify the document:
 
     class ReportType(enum.Enum):
         K_10 = "10-K"
@@ -186,11 +186,11 @@ Compile the document_classification function, which utilizes the previously defi
             print(f"Error generating content for document classification: {e}")
         return None
 
-To ensure that the model consistently returns the expected output, the generation_config is passed with response_mime_type="text/x.enum", and a schema is defined using the enum class ReportType to limit the outputs to the predefined classes. This approach provides control over the model's output and helps maintain consistency.
+To ensure that the model consistently returns the expected output, the `generation_config` is passed with `response_mime_type="text/x.enum"`, and a schema is defined using the enum class `ReportType` to limit the outputs to the predefined classes. This approach provides control over the model's output and helps maintain consistency.
 
-> Please note that "text/x.enum" is a special MIME type provided by Google AI API, enabling the return of enum response types. Refer to [the documentation](<https://ai.google.dev/gemini-api/docs/structured-output?lang=python>) for more details. Solutions for other models may vary.
+> Please note that `text/x.enum` is a special MIME type provided by Google AI API, enabling the return of enum response types. Refer to [the documentation](<https://ai.google.dev/gemini-api/docs/structured-output?lang=python>) for more details. Solutions for other models may vary.
 
-In order to optimize costs, it is advisable to use a smaller model for classification. Since only the first page of the document is used (assuming it contains sufficient information for classification), a large context window is unnecessary. Therefore, the model "gemini-1.5-pro-latest" is suitable for this case.
+In order to optimize costs, it is advisable to use a smaller model for classification. Since only the first page of the document is used (assuming it contains sufficient information for classification), a large context window is unnecessary. Therefore, the model `gemini-1.5-pro-latest` is suitable for this case.
 
 Here is how the execution of the code implemented so far looks:
 
@@ -225,7 +225,7 @@ With classification in place, the next step is to combine it with previous work 
 
 [Extracting Information from 10-K Reports Using Prompt Engineering](</work/extracting-information-10k-prompt-engineering/>)
 
-Based on the classification results, the appropriate prompt for information extraction should be executed. Detailed instructions on how to create such prompts are explained in the post linked above. Below is a prompt for 8-K reports, and the function get_extraction_prompt will create a prompt according to the document type.
+Based on the classification results, the appropriate prompt for information extraction should be executed. Detailed instructions on how to create such prompts are explained in the post linked above. Below is a prompt for 8-K reports, and the function `get_extraction_prompt` will create a prompt according to the document type.
 
     def create_prompt_8k_extract_info(text: str) -> str:
         return """You are reading an 8-K report. Extract the following information:
@@ -259,7 +259,7 @@ Based on the classification results, the appropriate prompt for information extr
             return None
         return None
 
-To ensure that the appropriate prompt is used based on the document type, the get_extraction_prompt function checks the classification result and returns the corresponding prompt for information extraction.
+To ensure that the appropriate prompt is used based on the document type, the `get_extraction_prompt` function checks the classification result and returns the corresponding prompt for information extraction.
 
 ### 6. Extract Information
 

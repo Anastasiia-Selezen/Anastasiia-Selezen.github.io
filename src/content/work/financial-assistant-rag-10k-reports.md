@@ -169,7 +169,7 @@ Closing the database connection after completing tasks is essential to free up r
 
 ### d. Index Chunks into Vector Store
 
-After establishing a connection to the Weaviate instance with the weaviate_client object, the processed semantic chunks are indexed into the vector store. This is achieved using the WeaviateVectorStore.from_documents functionality provided by LangChain.
+After establishing a connection to the Weaviate instance with the `weaviate_client` object, the processed semantic chunks are indexed into the vector store. This is achieved using the `WeaviateVectorStore.from_documents` functionality provided by LangChain.
 
     db = WeaviateVectorStore.from_documents(docs, embed_model, client=weaviate_client)
 
@@ -185,7 +185,7 @@ Let's break this process down step by step.
 
 ### a. **Creating Prompt Template and Initializing LLM**
 
-For the baseline implementation, the gpt-4o-mini model is used. A temperature of 0 ensures deterministic outputs, important for consistency in financial applications.
+For the baseline implementation, the `gpt-4o-mini` model is used. A temperature of 0 ensures deterministic outputs, important for consistency in financial applications.
 
 The prompt is inspired by the RAG-style prompt template from LangChain [Prompt Hub](<https://smith.langchain.com/hub/rlm/rag-prompt>), adjusted for financial analysis tasks.
 
@@ -205,7 +205,7 @@ LangGraph is used to integrate retrieval and generation steps into a single pipe
 
 **State**
 
-The state manages the data input, transfer between steps, and output of the application. Typically, this is implemented as a TypedDict or a Pydantic BaseModel. In this setup, the state tracks:
+The state manages the data input, transfer between steps, and output of the application. Typically, this is implemented as a `TypedDict` or a Pydantic `BaseModel`. In this setup, the state tracks:
 
   * Input question
   * Retrieved context
@@ -221,7 +221,7 @@ The state manages the data input, transfer between steps, and output of the appl
 The pipeline consists of two primary steps: retrieval and generation.
 
   * **Retrieval Step**:
-Leverages Weaviate's **Maximal Marginal Relevance (MMR)**, a method designed to balance relevance and diversity in search results. MMR reduces redundancy by penalizing items too similar to those already selected. Additional parameters, like k, specify the number of documents to retrieve.
+Leverages Weaviate's **Maximal Marginal Relevance (MMR)**, a method designed to balance relevance and diversity in search results. MMR reduces redundancy by penalizing items too similar to those already selected. Additional parameters, like `k`, specify the number of documents to retrieve.
 
     def retrieve(state: State):
         retrieved_docs = db.max_marginal_relevance_search(state["question"], k=10)
@@ -498,7 +498,7 @@ This article provides a detailed walkthrough of implementing and evaluating a Re
 
 ## Lessons Learned
 
-  1. **Fine-tuning Parameters Matters:** Effective division of documents into meaningful semantic chunks improves retrieval accuracy and reduces irrelevant context. Parameters like k (number of retrieved chunks) significantly impact the balance between relevance and processing overhead.
+  1. **Fine-tuning Parameters Matters:** Effective division of documents into meaningful semantic chunks improves retrieval accuracy and reduces irrelevant context. Parameters like `k` (number of retrieved chunks) significantly impact the balance between relevance and processing overhead.
   2. **Evaluation is Crucial:** Rigorous testing using metrics such as contextual precision, recall, and relevancy provides actionable insights for refining the system. These metrics are essential for identifying weaknesses and areas for improvement.
   3. **Tool Selection:** Choosing robust tools like Weaviate ensures scalability and performance for large datasets but requires familiarity with advanced features. Simpler tools may be sufficient for experimentation but may lack the functionality needed for production systems.
   4. **Domain-Specific Adaptation:** Adapting prompts to the specific domain, such as finance, is essential for maximizing performance. Domain-tailored prompts improve the system's ability to deliver precise, relevant, and actionable outputs.
