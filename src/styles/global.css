@@ -393,6 +393,8 @@ hr {
 }
 
 .article-page {
+  margin-left: 50%;
+  transform: translateX(-50%);
   width: min(var(--article-wide), calc(100vw - 40px));
 }
 
