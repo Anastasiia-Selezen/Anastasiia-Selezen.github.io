@@ -234,39 +234,41 @@ The example below shows how a tool is created; the other two tools follow the sa
   * Initialize FastMCP.
   * Decorate each function with @sec_mcp.tool(...) to expose it as an MCP tool with a description, tags, and annotations.
 
-    import asyncio
-    import logging
-    from collections.abc import Iterable
+```python
+import asyncio
+import logging
+from collections.abc import Iterable
 
-    from api_clients.sec_api_client import SECAPIClient
-    from fastmcp import FastMCP
+from api_clients.sec_api_client import SECAPIClient
+from fastmcp import FastMCP
 
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-    sec_mcp = FastMCP("sec_tools")
-    sec_client = SECAPIClient()
+sec_mcp = FastMCP("sec_tools")
+sec_client = SECAPIClient()
 
-    @sec_mcp.tool(
-        description="Map a stock ticker symbol to its Central Index Key (CIK).",
-        tags={"sec", "mapping", "ticker", "cik"},
-        annotations={"title": "Map Ticker to CIK", "readOnlyHint": True, "openWorldHint": True},
-    )
-    async def map_ticker_to_cik(ticker: str):
-        try:
-            cik = await asyncio.to_thread(sec_client.map_ticker_to_cik, ticker)
-            return {"ticker": ticker.strip().upper(), "cik": cik}
-        except Exception as exc:
-            logger.exception("Failed to map ticker %s", ticker)
-            return {"error": str(exc)}
+@sec_mcp.tool(
+    description="Map a stock ticker symbol to its Central Index Key (CIK).",
+    tags={"sec", "mapping", "ticker", "cik"},
+    annotations={"title": "Map Ticker to CIK", "readOnlyHint": True, "openWorldHint": True},
+)
+async def map_ticker_to_cik(ticker: str):
+    try:
+        cik = await asyncio.to_thread(sec_client.map_ticker_to_cik, ticker)
+        return {"ticker": ticker.strip().upper(), "cik": cik}
+    except Exception as exc:
+        logger.exception("Failed to map ticker %s", ticker)
+        return {"error": str(exc)}
+```
 
 ### Tool metadata
 
   * **description:** Human-readable summary of the tool.
   * **tags:** Useful for grouping, discovery, and server-/client-side filtering (e.g., FastMCP supports tag-based filtering).
-  * **annotations:
-* **readOnlyHint: True -- declares the tool does not modify state.
-* openWorldHint: True -- indicates it talks to external systems.
+  * **annotations:** Metadata hints used by clients and LLM hosts.
+  * **readOnlyHint: True** -- declares the tool does not modify state.
+  * **openWorldHint: True** -- indicates it talks to external systems.
 
 With these annotations, the function is exposed as a **read-only, external-data** tool "Map Ticker to CIK", appropriately tagged for LLM discovery via MCP.
 
@@ -375,8 +377,9 @@ The Agent Scope MCP server definition does not invoke tools like the two servers
   * Initialize a FastMCP server instance.
   * Use the @agent_scope_mcp.prompt(...) decorator to publish a prompt named financial_analysis_prompt.
 
-**Behavior
-** The prompt function accepts query and returns a formatted system prompt.
+**Behavior**
+
+The prompt function accepts query and returns a formatted system prompt.
 
     import logging
 
@@ -449,47 +452,49 @@ An aggregator MCP Server ("tool registry") that imports several MCP Servers/serv
   * get_registry(): Returns the aggregated FastMCP server (single endpoint).
   * get_all_tags(): Returns the precomputed tag set for discovery and filtering.
 
-    import logging
+```python
+import logging
 
-    from fastmcp import FastMCP
-    from server.agent_scope import agent_scope_mcp
-    from server.alpha_vantage import alphavantage_mcp, load_alpha_vantage_tools
-    from server.sec import sec_mcp
+from fastmcp import FastMCP
+from server.agent_scope import agent_scope_mcp
+from server.alpha_vantage import alphavantage_mcp, load_alpha_vantage_tools
+from server.sec import sec_mcp
 
-    log = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-    class McpServersRegistry:
-        def __init__(self):
-            self.registry = FastMCP("tool_registry")
-            self.all_tags: set[str] = set()
-            self._is_initialized = False
+class McpServersRegistry:
+    def __init__(self):
+        self.registry = FastMCP("tool_registry")
+        self.all_tags: set[str] = set()
+        self._is_initialized = False
 
-        async def initialize(self):
-            if self._is_initialized:
-                return
+    async def initialize(self):
+        if self._is_initialized:
+            return
 
-            log.info("Initializing McpServersRegistry...")
-            await load_alpha_vantage_tools()
-            await self.registry.import_server(alphavantage_mcp, prefix="alphavantage")
-            await self.registry.import_server(agent_scope_mcp, prefix="scope")
-            await self.registry.import_server(sec_mcp, prefix="sec")
+        log.info("Initializing McpServersRegistry...")
+        await load_alpha_vantage_tools()
+        await self.registry.import_server(alphavantage_mcp, prefix="alphavantage")
+        await self.registry.import_server(agent_scope_mcp, prefix="scope")
+        await self.registry.import_server(sec_mcp, prefix="sec")
 
-            all_tools = await self.registry.get_tools()
-            for tool in all_tools.values():
-                if tool.tags:
-                    self.all_tags.update(tool.tags)
+        all_tools = await self.registry.get_tools()
+        for tool in all_tools.values():
+            if tool.tags:
+                self.all_tags.update(tool.tags)
 
-            log.info(f"Registry initialization complete. Found tags: {self.all_tags}")
-            self._is_initialized = True
+        log.info(f"Registry initialization complete. Found tags: {self.all_tags}")
+        self._is_initialized = True
 
-        def get_registry(self) -> FastMCP:
-            """returns the initialized tool registry."""
-            return self.registry
+    def get_registry(self) -> FastMCP:
+        """returns the initialized tool registry."""
+        return self.registry
 
-        def get_all_tags(self) -> set[str]:
-            """returns the pre-calculated set of all tool tags."""
-            return self.all_tags
+    def get_all_tags(self) -> set[str]:
+        """returns the pre-calculated set of all tool tags."""
+        return self.all_tags
+```
 
 > Note that when a server is [**imported**](<https://gofastmcp.com/python-sdk/fastmcp-server-server#import-server>), its objects are immediately registered to the importing server. This is a one-time operation and future changes to the imported server will not be reflected in the importing server.
 
@@ -573,7 +578,7 @@ Instructions on how to run it are available in[ the official repository](<https:
 
 After starting it, connect to the running MCP Server. On the left side, select the needed configuration. In this case, choose Streamable HTTP, specify the URL (<http://localhost:5555/mcp>), and set the connection type to Proxy. Press Connect.
 
-![](https://cdn-images-1.medium.com/max/628/1*ISZCg4uugQvlCIh_1lsmXQ.png)
+<img class="image-compact" src="https://cdn-images-1.medium.com/max/628/1*ISZCg4uugQvlCIh_1lsmXQ.png" alt="">
 
 After successfully connecting to the MCP Server, the available resources/tools/prompts can be inspected. Navigate to the Tools tab, click **List Tools**, and all available tools will be displayed.
 

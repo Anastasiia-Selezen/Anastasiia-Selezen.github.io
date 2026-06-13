@@ -547,9 +547,29 @@ hr {
 }
 
 .prose img {
-  margin: 1.4em 0;
+  margin: 1.4em auto;
   border-radius: 6px;
   border: 1px solid var(--rule);
+}
+
+.article-page .prose > p:first-child > img:only-child,
+.article-page .prose img.image-compact {
+  max-height: min(56vh, 520px);
+  max-width: min(100%, 34rem);
+  object-fit: contain;
+  width: auto;
+}
+
+.prose p:has(> img:only-child) + p:has(> em:only-child),
+.prose img + p:has(> em:only-child) {
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: min(100%, 38rem);
+  text-align: center;
 }
 
 .notebook-frame {

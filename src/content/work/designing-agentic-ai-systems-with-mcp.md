@@ -52,7 +52,7 @@ Each **Assistant Director (AD)** has a headset and a direct line to one or more 
 
 Each **department** is a team of specialists. They have the expertise and the resources to deliver exactly what's needed when asked.
 
-![](https://cdn-images-1.medium.com/max/1024/1*qNUo4QhW1lhQDOYiODVtJw.png)
+<img class="image-compact" src="https://cdn-images-1.medium.com/max/1024/1*qNUo4QhW1lhQDOYiODVtJw.png" alt="">
 
 _The Director gives the orders → the ADs relay them → the departments deliver_
 
