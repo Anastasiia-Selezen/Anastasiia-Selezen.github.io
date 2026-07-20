@@ -8,7 +8,7 @@ type: "article"
 status: "current"
 ---
 
-## Why
+## Why I built it
 
 Every new conversation with an AI assistant starts from zero. The assistant does not know anything about the person it is working with.
 
@@ -18,7 +18,7 @@ But what if the assistant could infer personal traits from past interactions: ho
 
 That became the motivation for Personality Profiler.
 
-## What
+## What it does
 
 Personality Profiler is a Codex skill that analyzes recent Codex conversations, identifies your working style, and creates a reusable profile that Codex can use in future sessions. 
 
@@ -26,7 +26,7 @@ Personality Profiler is a Codex skill that analyzes recent Codex conversations, 
 
 Personality Profiler serves as a personalization layer: Codex uses the generated profile to adapt its responses to the way you naturally think, plan, and collaborate.
 
-The profile is based on four traits from the Big Five personality model:
+The profile is based on four traits from the [Big Five personality model](https://www.simplypsychology.org/big-five-personality.html):
 
 * Openness — how curious you are, how much you enjoy experimenting, and how comfortable you are with new ideas
 * Conscientiousness — how much you value structure, planning, accuracy, and follow-through
@@ -34,7 +34,7 @@ The profile is based on four traits from the Big Five personality model:
 * Neuroticism — how you respond to uncertainty, pressure, and the need for reassurance
 
 Each trait can lean high or low. Together, these combinations form 16 predefined working-style profiles.
-The skill looks at patterns in a user’s past conversations to estimate where they fall on each trait. It then assigns one of the pre-defined profiles that best matches how you tend to work.
+The skill looks at patterns in your past conversations to estimate where you fall on each trait. It then assigns the predefined profile that best matches how you tend to work.
 
 The generated profile can capture patterns such as:
 
@@ -47,7 +47,7 @@ The generated profile can capture patterns such as:
 Once created, the profile is picked up in future Codex sessions: its description tells Codex to apply it in every session, so personalization becomes part of the working environment across all your projects, rather than a prompt that has to be copied and pasted each time.
 
 
-## How 
+## How it works
 
 Personality Profiler is packaged as a Codex skill. It runs locally, requires Python 3.10+, and uses existing Codex conversation history from `~/.codex` as the source material.
 
@@ -109,7 +109,7 @@ The workflow can be represented as a stage-based schema that connects the skill 
 
 ### Profile Definitions
 
-I used the Big Five model as the starting point, but narrowed the interpretation to signals that matter when someone collaborates with an AI coding agent. I dropped Extraversion as this trait doesn't bring any signal about working with coding agent. For each trait, I identified behaviors that suggest a lower or higher tendency. Combining four traits with two possible directions gives 16 working-style profiles.
+I used the Big Five model as the starting point, but narrowed the interpretation to signals that matter when someone collaborates with an AI coding agent. I dropped Extraversion, since it carries almost no signal about how someone works with a coding agent. For each trait, I identified behaviors that suggest a lower or higher tendency. Combining four traits with two possible directions gives 16 working-style profiles.
 
 The result should be read as a working-style profile for collaborating with an AI agent, not as a clinical personality assessment.
 
@@ -167,7 +167,28 @@ answer_5_points: -2
 ---
 ```
 
-For a high-pole question like this one, the answers map to scores from `+2` down to `-2`. Low-pole questions are reverse-keyed. For a prompt like “The user often jumps to a new thread or idea before finishing the current one” (Q10, Conscientiousness), “Strongly agree” scores `-2` instead of `+2`. This keeps the questionnaire measuring the underlying trait rather than agreement itself.
+For a high-pole question like this one, the answers map to scores from `+2` down to `-2`. Low-pole questions are reverse-keyed, so agreeing counts against the trait. Here is `references/questionnaire/Q10.md`:
+
+```yaml
+---
+id: "Q10"
+trait: "Conscientiousness"
+pole: "low"
+prompt: "The user often jumps to a new thread or idea before finishing the current one."
+answer_1_label: "Strongly agree"
+answer_1_points: -2
+answer_2_label: "Agree"
+answer_2_points: -1
+answer_3_label: "Neutral"
+answer_3_points: 0
+answer_4_label: "Disagree"
+answer_4_points: 1
+answer_5_label: "Strongly disagree"
+answer_5_points: 2
+---
+```
+
+Here “Strongly agree” scores `-2` instead of `+2`. This keeps the questionnaire measuring the underlying trait rather than agreement itself.
 
 Scoring is deterministic. The points are summed per trait and normalized against the minimum and maximum possible sums for that trait:
 
@@ -205,7 +226,7 @@ Profile: {{profile_name}}
 
 The generated profile is written into `~/.codex/skills/profile/SKILL.md`. Because the output is also a normal Codex skill, Codex can load it in future sessions and use it as guidance for how to collaborate with the user.
 
-After generation, the user should start a new Codex session so the profile skill is loaded reliably. The profile is also easy to refresh later. Working style can change as projects change, habits change, or the way someone uses Codex becomes more mature. To regenerate the profile with newer conversation data, run:
+After generation, the user should start a new Codex session so the profile skill is loaded reliably. The profile is also easy to refresh later. Working style shifts as projects and habits evolve, or as someone's use of Codex matures. To regenerate the profile with newer conversation data, run:
 
 ```text
 Use $personality-profiler skill to regenerate my profile
@@ -213,10 +234,11 @@ Use $personality-profiler skill to regenerate my profile
 
 ## My results
 
-I ran the profiler on my own history — by default it reads the 20 most recent Codex sessions. It classified me as The Innovator: Openness 62%, Conscientiousness 75%, Agreeableness 60%, Neuroticism 65%, all four traits leaning high. The generated profile describes someone who wants structured plans and detailed task breakdowns, likes exploring several options before committing, and double-checks assumptions when things feel uncertain. That is a fair description of how I actually work with Codex — and a more honest one than anything I would have written about myself by hand.
+I ran the profiler on my own history. It classified me as The Innovator: Openness 62%, Conscientiousness 75%, Agreeableness 60%, Neuroticism 65%, all four traits leaning high. The generated profile describes someone who wants structured plans and detailed task breakdowns, likes exploring several options before committing, and double-checks assumptions when things feel uncertain. That is a fair description of how I actually work with Codex and a more honest one than anything I would have written about myself by hand.
 
 ## Conclusion
 
+Personality Profiler shows the real potential of skills as a concept. A skill is not just a `SKILL.md` file with a few instructions: it can grow into something quite complex, and it is a powerful way to extend a coding agent's capabilities.
 
 The code is available on [GitHub](https://github.com/Anastasiia-Selezen/personality-profiler). If you want Codex to learn how you work, you can install it with:
 
