@@ -10,21 +10,11 @@ status: "current"
 
 ## Why
 
-Every person has their own preferences: what food they like, how they spend time with friends, their morning routine, their style of learning something new, and of course, how they work and communicate with other people.
+Every new conversation with an AI assistant starts from zero. The assistant does not know anything about the person it is working with.
 
-When humans work or spend time with other people, they gradually learn each other’s preferences and adapt to them. Someone who prefers direct feedback may become frustrated by too much preamble, while someone else may appreciate more context before getting to the point. The same differences appear when people interact with AI assistants. Some users want concise answers and fast edits. Others want a plan before anything changes. Some prefer the assistant to challenge vague requirements early, while others mainly want steady execution once the goal is clear.
+Yet everyone works differently. Some users want concise answers and fast edits. Others want a plan before anything changes. Some prefer the assistant to challenge vague requirements early, while others mainly want steady execution once the goal is clear. When humans work together, they gradually learn each other’s preferences and adapt to them. With an AI assistant, that adaptation rarely happens on its own. Settings and custom instructions can help, but they require effort: reflecting on yourself, describing your preferences accurately, and keeping them up to date. In the end, the person is often the only one adapting to the assistant’s style.
 
-All of these preferences and behaviors together shape our personality. As a result, this also determines what a truly helpful response looks like.
-
-In the AI era, everyone can have their own companion to work with, except that every new conversation starts from zero. The assistant does not know anything about the person.
-
-This can be adjusted with settings or by curating a personal set of custom instructions. That is useful, but it requires effort: reflecting on yourself, knowing how to describe those preferences accurately, and updating them regularly.
-
-In the end, the person is often the only one adapting to the assistant’s style.
-
-But what if the assistant could infer personal traits from past interactions: how a user asks questions, responds to uncertainty, reacts to plans, gives feedback, requests detail, and manages tradeoffs? What if it could process those patterns and take them into account in future interactions?
-
-It would feel more like chatting with a colleague who has already worked with you for a few years.
+But what if the assistant could infer personal traits from past interactions: how a user asks questions, responds to uncertainty, reacts to plans, gives feedback, requests detail, and manages tradeoffs? What if it could process those patterns and take them into account in future interactions? It would feel more like working with a colleague who has already known you for a few years.
 
 That became the motivation for Personality Profiler.
 
@@ -32,20 +22,9 @@ That became the motivation for Personality Profiler.
 
 Personality Profiler is a Codex skill that analyzes recent Codex conversations, identifies your working style, and creates a reusable profile that Codex can use in future sessions. 
 
----
-what is a skill?
+> **What is a skill?** Conceptually, a skill is a reusable workflow: whenever a task feels like part of your routine, it is a good candidate to become a skill. Technically, it is a folder with a SKILL.md file that contains metadata plus instructions that tell an agent how to perform a specific task and, optionally, bundled scripts, references, and templates. Skills are loaded on demand: only the name and description are loaded at first, and the agent reads the full SKILL.md only when your request matches the description, so the context window does not get polluted. More details in the [Agent Skills documentation](https://agentskills.io/home).
 
-Conseptually Skill is a speciall format for reusable workflows. Whenewher you fill like the task is just your rutine, you might want to put it in the skill. 
-from the technical point of view, a skill is a folder containing a SKILL.md file with metadata (name and description) and instructions that tell an agent how to perform a specific task. Skills can also bundle scripts, reference materials, templates, and other resources. 
-This is a lightweight, open format for extending AI agent capabilities with specialized knowledge and workflows.
-Skills are loaded on demand, so agent's context window doesn't get polluted with too much information, only metadata information (name and description) is loaded at first and only when agent sees that what you are asking him is corelates with description of the skill it will load full SKILL.md.  
-you can fin more information [here](https://agentskills.io/home).
-
-
-
----
-
-Personality Profiler serves as a personalization layer that helps Codex better understand your working style and adapt its responses to fit the way you naturally think, plan, and collaborate.
+Personality Profiler serves as a personalization layer: Codex uses the generated profile to adapt its responses to the way you naturally think, plan, and collaborate.
 
 The profile is based on four traits from the Big Five personality model:
 
@@ -65,10 +44,10 @@ The generated profile can capture patterns such as:
 * response to feedback and pushback
 * attitude toward risk, planning, and priorities
 
-Once created, the profile can be loaded automatically in future Codex sessions. This makes personalization part of the working environment across all your projects, rather than a prompt that has to be copied and pasted each time.
+Once created, the profile is picked up in future Codex sessions: its description tells Codex to apply it in every session, so personalization becomes part of the working environment across all your projects, rather than a prompt that has to be copied and pasted each time.
 
 
-## How - The implementation
+## How 
 
 Personality Profiler is packaged as a Codex skill. It runs locally, requires Python 3.10+, and uses existing Codex conversation history from `~/.codex` as the source material.
 
@@ -130,7 +109,9 @@ The workflow can be represented as a stage-based schema that connects the skill 
 
 ### Profile Definitions
 
-I used the Big Five model as the starting point, but narrowed the interpretation to signals that matter when someone collaborates with an AI coding agent. For each trait, I identified behaviors that suggest a lower or higher tendency. Combining four traits with two possible directions gives 16 working-style profiles.
+I used the Big Five model as the starting point, but narrowed the interpretation to signals that matter when someone collaborates with an AI coding agent. I dropped Extraversion as this trait doesn't bring any signal about working with coding agent. For each trait, I identified behaviors that suggest a lower or higher tendency. Combining four traits with two possible directions gives 16 working-style profiles.
+
+The result should be read as a working-style profile for collaborating with an AI agent, not as a clinical personality assessment.
 
 Each profile tells Codex how to adapt: when to give more structure, when to stay concise, when to surface risks, how much context to provide, and how to communicate progress.
 
@@ -163,9 +144,7 @@ learning, novelty, and experimentation.
 
 ### Questionnaire
 
-The questionnaire turns conversation evidence into a structured score. Each question is connected to one of the traits and has five possible answers, from strongly low-leaning to strongly high-leaning. Those options map to scores from `-2` to `+2`.
-
-The scores are summed per trait and converted into percentages. Once each trait is classified as high or low, the generator can select the matching profile from `references/profiles/`.
+The questionnaire turns conversation evidence into a structured score. There are 21 questions: six for Openness and five for each of the remaining traits. Each question targets one trait, declares a `pole`, whether agreeing signals the high or the low side of that trait, and offers five answers from “Strongly agree” to “Strongly disagree”.
 
 Here is one question from `references/questionnaire/Q1.md`:
 
@@ -187,6 +166,16 @@ answer_5_label: "Strongly disagree"
 answer_5_points: -2
 ---
 ```
+
+For a high-pole question like this one, the answers map to scores from `+2` down to `-2`. Low-pole questions are reverse-keyed. For a prompt like “The user often jumps to a new thread or idea before finishing the current one” (Q10, Conscientiousness), “Strongly agree” scores `-2` instead of `+2`. This keeps the questionnaire measuring the underlying trait rather than agreement itself.
+
+Scoring is deterministic. The points are summed per trait and normalized against the minimum and maximum possible sums for that trait:
+
+```text
+percentage = (raw - min) / (max - min) * 100
+```
+
+A trait at 50% or below is classified as low, and 51% or above as high. The four resulting poles select the matching profile from `references/profiles/`.
 
 ### Generated Profile
 
@@ -220,4 +209,17 @@ After generation, the user should start a new Codex session so the profile skill
 
 ```text
 Use $personality-profiler skill to regenerate my profile
+```
+
+## My results
+
+I ran the profiler on my own history — by default it reads the 20 most recent Codex sessions. It classified me as The Innovator: Openness 62%, Conscientiousness 75%, Agreeableness 60%, Neuroticism 65%, all four traits leaning high. The generated profile describes someone who wants structured plans and detailed task breakdowns, likes exploring several options before committing, and double-checks assumptions when things feel uncertain. That is a fair description of how I actually work with Codex — and a more honest one than anything I would have written about myself by hand.
+
+## Conclusion
+
+
+The code is available on [GitHub](https://github.com/Anastasiia-Selezen/personality-profiler). If you want Codex to learn how you work, you can install it with:
+
+```text
+npx skills add Anastasiia-Selezen/personality-profiler
 ```
