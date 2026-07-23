@@ -589,6 +589,39 @@ hr {
   white-space: inherit;
 }
 
+.workflow-diagram {
+  margin: 1.8em 0 1.4em;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  width: min(1240px, calc(100vw - 40px));
+}
+
+.workflow-diagram-scroll {
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+
+.workflow-diagram img {
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  max-width: none;
+  min-width: 1180px;
+  width: 100%;
+}
+
+.workflow-diagram figcaption {
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  margin-top: 10px;
+  text-align: center;
+}
+
 .notebook-frame {
   background: #0d0c0e;
   border: 1px solid var(--rule-strong);

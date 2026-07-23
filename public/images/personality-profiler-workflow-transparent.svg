@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 330" role="img" aria-labelledby="title desc">
+  <title id="title">Personality Profiler workflow</title>
+  <desc id="desc">A horizontal five-step workflow. Recent Codex conversations are saved as temporary evidence. The questionnaire is loaded. Codex answers using the evidence and guidance. The four traits are scored and matched to one of sixteen profiles. The selected profile is written and a short summary is presented.</desc>
+
+  <defs>
+    <filter id="card-shadow" x="-8%" y="-8%" width="116%" height="122%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#27313a" flood-opacity="0.12" />
+    </filter>
+    <style>
+      .stage { stroke: #30353a; stroke-width: 1.6; filter: url(#card-shadow); }
+      .stage-default { fill: #edf6fd; }
+      .stage-highlight { fill: #fff4d3; }
+      .number-default { fill: #3a80bd; stroke: #ffffff; stroke-width: 2; }
+      .number-highlight { fill: #c28018; stroke: #ffffff; stroke-width: 2; }
+      .connector { fill: none; stroke: #59636b; stroke-width: 2.2; stroke-linecap: round; }
+      .arrowhead { fill: #59636b; }
+      .heading, .body, .step-number {
+        fill: #202124;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+      .heading { font-size: 22px; font-weight: 600; }
+      .body { fill: #555b64; font-size: 15px; font-weight: 500; }
+      .step-number { fill: #ffffff; font-size: 15px; font-weight: 700; }
+    </style>
+  </defs>
+
+  <!-- Connectors -->
+  <path class="connector" d="M291 165 H313" />
+  <path class="arrowhead" d="M310 159 L320 165 L310 171 Z" />
+  <path class="connector" d="M591 165 H613" />
+  <path class="arrowhead" d="M610 159 L620 165 L610 171 Z" />
+  <path class="connector" d="M891 165 H913" />
+  <path class="arrowhead" d="M910 159 L920 165 L910 171 Z" />
+  <path class="connector" d="M1191 165 H1213" />
+  <path class="arrowhead" d="M1210 159 L1220 165 L1210 171 Z" />
+
+  <!-- Step 1 -->
+  <rect class="stage stage-default" x="20" y="35" width="270" height="260" rx="18" />
+  <circle class="number-default" cx="50" cy="69" r="17" />
+  <text class="step-number" x="50" y="74" text-anchor="middle">1</text>
+  <text class="heading" x="44" y="121">Collect conversation</text>
+  <text class="heading" x="44" y="149">evidence</text>
+  <text class="body" x="44" y="185">Read recent Codex</text>
+  <text class="body" x="44" y="207">conversations and save them</text>
+  <text class="body" x="44" y="229">as temporary evidence.</text>
+
+  <!-- Step 2 -->
+  <rect class="stage stage-default" x="320" y="35" width="270" height="260" rx="18" />
+  <circle class="number-default" cx="350" cy="69" r="17" />
+  <text class="step-number" x="350" y="74" text-anchor="middle">2</text>
+  <text class="heading" x="344" y="121">Load the</text>
+  <text class="heading" x="344" y="149">questionnaire</text>
+  <text class="body" x="344" y="185">Load the trait-based</text>
+  <text class="body" x="344" y="207">assessment.</text>
+
+  <!-- Step 3 -->
+  <rect class="stage stage-highlight" x="620" y="35" width="270" height="260" rx="18" />
+  <circle class="number-highlight" cx="650" cy="69" r="17" />
+  <text class="step-number" x="650" y="74" text-anchor="middle">3</text>
+  <text class="heading" x="644" y="121">Answer with</text>
+  <text class="heading" x="644" y="149">evidence</text>
+  <text class="body" x="644" y="185">Codex answers each question</text>
+  <text class="body" x="644" y="207">using the evidence and</text>
+  <text class="body" x="644" y="229">guidance.</text>
+
+  <!-- Step 4 -->
+  <rect class="stage stage-default" x="920" y="35" width="270" height="260" rx="18" />
+  <circle class="number-default" cx="950" cy="69" r="17" />
+  <text class="step-number" x="950" y="74" text-anchor="middle">4</text>
+  <text class="heading" x="944" y="121">Score and match</text>
+  <text class="heading" x="944" y="149">the profile</text>
+  <text class="body" x="944" y="185">Calculate four trait scores</text>
+  <text class="body" x="944" y="207">and match 1 of 16 profiles.</text>
+
+  <!-- Step 5 -->
+  <rect class="stage stage-default" x="1220" y="35" width="270" height="260" rx="18" />
+  <circle class="number-default" cx="1250" cy="69" r="17" />
+  <text class="step-number" x="1250" y="74" text-anchor="middle">5</text>
+  <text class="heading" x="1244" y="121">Generate the</text>
+  <text class="heading" x="1244" y="149">profile</text>
+  <text class="body" x="1244" y="185">Write the selected profile</text>
+  <text class="body" x="1244" y="207">and show a summary.</text>
+</svg>
