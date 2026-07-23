@@ -8,6 +8,8 @@ type: "article"
 status: "current"
 ---
 
+![Conversation fragments flowing through four trait paths and converging into a unique fingerprint-shaped working profile.](/images/teaching-codex-how-i-work-cover.png)
+
 ## Why I built it
 
 Every new conversation with an AI assistant starts from zero. The assistant does not know anything about the person it is working with.
