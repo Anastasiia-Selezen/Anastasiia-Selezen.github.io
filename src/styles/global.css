@@ -557,7 +557,12 @@ hr {
   border: 1px solid var(--rule);
 }
 
-.article-page .prose > p:first-child > img:only-child,
+.article-page .prose > p:first-child > img:only-child {
+  height: auto;
+  max-width: 100%;
+  width: 100%;
+}
+
 .article-page .prose img.image-compact {
   max-height: min(56vh, 520px);
   max-width: min(100%, 34rem);
