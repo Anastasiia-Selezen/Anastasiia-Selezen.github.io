@@ -597,7 +597,7 @@ hr {
 }
 
 .workflow-diagram-scroll {
-  background: #fffef9;
+  background: transparent;
   border: 1px solid var(--rule-strong);
   border-radius: 8px;
   box-shadow: var(--shadow-sm);
@@ -609,7 +609,7 @@ hr {
   border-radius: 0;
   margin: 0;
   max-width: none;
-  min-width: 1240px;
+  min-width: 1180px;
   width: 100%;
 }
 

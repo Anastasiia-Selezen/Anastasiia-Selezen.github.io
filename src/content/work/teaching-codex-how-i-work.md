@@ -1,9 +1,9 @@
 ---
 title: "Teaching Codex How I Work"
-date: 2026-06-17 20:50
+date: 2026-07-23 20:50
 summary: "A look at Personality Profiler, a Codex skill that analyzes recent conversations to infer working style and create a reusable personalization profile."
-category: "AI Tools"
-tags: ["codex", "personalization", "skills", "ai-tools"]
+category: "Skills"
+tags: ["codex", "personalization", "skills"]
 type: "article"
 status: "current"
 ---
@@ -22,7 +22,7 @@ That became the motivation for Personality Profiler.
 
 Personality Profiler is a Codex skill that analyzes recent Codex conversations, identifies your working style, and creates a reusable profile that Codex can use in future sessions. 
 
-> **What is a skill?** Conceptually, a skill is a reusable workflow: whenever a task feels like part of your routine, it is a good candidate to become a skill. Technically, it is a folder with a SKILL.md file that contains metadata plus instructions that tell an agent how to perform a specific task and, optionally, bundled scripts, references, and templates. Skills are loaded on demand: only the name and description are loaded at first, and the agent reads the full SKILL.md only when your request matches the description, so the context window does not get polluted. More details in the [Agent Skills documentation](https://agentskills.io/home).
+> **What is a skill?** Conceptually, a skill packages instructions and supporting resources into a reusable workflow that tells an agent how to perform a specific task. The main benefit of skills is that they are loaded on demand: only the name and description are loaded at first, and the agent reads the full `SKILL.md` when your request matches the description, so the context window does not get polluted. For more details, see the [Agent Skills documentation](https://agentskills.io/home).
 
 Personality Profiler serves as a personalization layer: Codex uses the generated profile to adapt its responses to the way you naturally think, plan, and collaborate.
 
@@ -93,17 +93,17 @@ When the skill runs, the process is:
 4. Codex passes the completed questionnaire to the profile generator.
 5. `generate_profile_file.py` scores the answers with `submit_answers.py`, matches them to one of the 16 predefined profiles, writes the profile with `write_profile_file.py`, and prints a short summary.
 
-The workflow can be represented as a stage-based schema that connects the skill folder to the runtime steps:
+At a high level, Personality Profiler follows five steps:
 
 <figure class="workflow-diagram" aria-labelledby="personality-profiler-workflow">
   <div class="workflow-diagram-scroll">
     <img
-      src="/images/personality-profiler-workflow.svg"
-      alt="Stage-based workflow diagram for Personality Profiler. The user invokes the personality-profiler skill through SKILL.md. The collector reads Codex history from ~/.codex and writes /tmp/personality-evidence.json. The questionnaire stage loads references/questionnaire and uses references/fill-questionnaire.md to produce completed answers on stdin. The generator scores answers with submit_answers.py, matches references/profiles, applies the profile template, writes ~/.codex/skills/profile/SKILL.md, and prints a summary. A new Codex session loads the generated profile skill."
+      src="/images/personality-profiler-workflow-transparent.svg"
+      alt="Personality Profiler turns recent Codex conversations into a reusable working-style profile in five steps. It saves observed interaction patterns as temporary evidence, loads the trait-based assessment, asks Codex to answer from the evidence and guidance, scores four traits and matches one of sixteen profiles, then writes the selected profile and presents a short summary."
     />
   </div>
   <figcaption id="personality-profiler-workflow">
-    Personality Profiler workflow
+    Personality Profiler architecture
   </figcaption>
 </figure>
 
